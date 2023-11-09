@@ -1,7 +1,13 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:instagramclone/core/controllers/user_controller.dart';
+import 'package:instagramclone/core/services/user_service.dart';
+import 'package:instagramclone/ui/pages/signup_page.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
@@ -15,14 +21,20 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final UserController _userController = UserController(
+    UserService(
+      firebaseAuth: FirebaseAuth.instance,
+      firebaseFirestore: FirebaseFirestore.instance,
+    ),
+  );
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String _email = '';
   String _password = '';
   bool _isLoading = false;
 
-  void login() {
-    print('Comit login coz I forgot:)');
+  void login() async {
     bool isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
@@ -32,6 +44,16 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true;
     });
+
+    _formKey.currentState!.save();
+
+    String result = await _userController.login(_email, _password);
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+    }
+
+    print(result);
 
     setState(() {
       _isLoading = false;
@@ -121,7 +143,14 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   child:
                       const Text('Signup', style: TextStyle(color: blueColor)),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignupPage(),
+                      ),
+                    );
+                  },
                 ),
               ],
             )

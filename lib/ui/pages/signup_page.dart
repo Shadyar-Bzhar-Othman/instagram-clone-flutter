@@ -24,9 +24,12 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final UserController _userController = UserController(UserService(
+  final UserController _userController = UserController(
+    UserService(
       firebaseAuth: FirebaseAuth.instance,
-      firebaseFirestore: FirebaseFirestore.instance));
+      firebaseFirestore: FirebaseFirestore.instance,
+    ),
+  );
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 

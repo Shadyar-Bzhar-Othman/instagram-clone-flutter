@@ -24,7 +24,7 @@ class InstagramClone extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: backgroundColor,
       ),
-      home: const SignupPage(),
+      home: const LoginPage(),
     );
   }
 }
