@@ -1,10 +1,15 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instagramclone/core/controllers/user_controller.dart';
+import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
@@ -19,6 +24,10 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final UserController _userController = UserController(UserService(
+      firebaseAuth: FirebaseAuth.instance,
+      firebaseFirestore: FirebaseFirestore.instance));
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String _username = '';
@@ -27,7 +36,7 @@ class _SignupPageState extends State<SignupPage> {
   Uint8List? _profileImage;
   bool _isLoading = false;
 
-  void signup() {
+  void signup() async {
     bool isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
@@ -37,6 +46,15 @@ class _SignupPageState extends State<SignupPage> {
     setState(() {
       _isLoading = true;
     });
+
+    _formKey.currentState!.save();
+
+    String result = await _userController.signup(
+        _email, _password, _username, _profileImage);
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+    }
 
     setState(() {
       _isLoading = false;
@@ -162,7 +180,9 @@ class _SignupPageState extends State<SignupPage> {
                 TextButton(
                   child:
                       const Text('Login', style: TextStyle(color: blueColor)),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ],
             )
