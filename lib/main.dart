@@ -1,6 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramclone/firebase_options.dart';
+import 'package:instagramclone/ui/pages/login_page.dart';
+import 'package:instagramclone/ui/pages/signup_page.dart';
+import 'package:instagramclone/utils/colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,11 +21,10 @@ class InstagramClone extends StatelessWidget {
     return MaterialApp(
       title: 'Instagram Clone',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Container(
-          child: Text('Shadyar Bzhar Othman'),
-        ),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: backgroundColor,
       ),
+      home: const SignupPage(),
     );
   }
 }
