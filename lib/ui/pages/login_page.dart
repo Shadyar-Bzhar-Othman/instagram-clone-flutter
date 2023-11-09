@@ -22,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   void login() {
+    print('Comit login coz I forgot:)');
     bool isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
