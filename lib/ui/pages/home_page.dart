@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:instagramclone/ui/pages/add_post_page.dart';
 import 'package:instagramclone/ui/pages/feed_page.dart';
 import 'package:instagramclone/utils/colors.dart';
 
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
       } else if (_currentIndex == 1) {
         content = const FeedPage();
       } else if (_currentIndex == 2) {
-        content = const FeedPage();
+        content = const AddPostPage();
       } else if (_currentIndex == 3) {
         content = const FeedPage();
       } else if (_currentIndex == 4) {
