@@ -48,32 +48,28 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
 
     final currentUserValue = ref.read(userProvider);
 
-    currentUserValue.when(
-      data: (currentUser) async {
-        final descreption = _captionController.text;
+    currentUserValue.whenData((currentUser) async {
+      final descreption = _captionController.text;
 
-        final result = await _postController.addPost(
-          currentUser.userId,
-          currentUser.username,
-          currentUser.profileImageURL,
-          _selectedImage,
-          descreption,
-        );
+      final result = await _postController.addPost(
+        currentUser.userId,
+        currentUser.username,
+        currentUser.profileImageURL,
+        _selectedImage,
+        descreption,
+      );
 
-        setState(() {
-          _isLoading = false;
-        });
+      setState(() {
+        _isLoading = false;
+      });
 
-        if (result != 'Success') {
-          showSnackbar(context, result);
-          return;
-        }
+      if (result != 'Success') {
+        showSnackbar(context, result);
+        return;
+      }
 
-        widget.changePage(0);
-      },
-      error: (error, stackTrace) {},
-      loading: () {},
-    );
+      widget.changePage(0);
+    });
   }
 
   @override

@@ -1,12 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instagramclone/core/controllers/post_controller.dart';
+import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
+import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/services/post_service.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
+import 'package:instagramclone/ui/shared/widgets/like_animation.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:intl/intl.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends ConsumerStatefulWidget {
   const PostCard({super.key, required this.post});
 
   final Post post;
+
+  @override
+  ConsumerState<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends ConsumerState<PostCard> {
+  final PostController _postController = PostController(
+    postService: PostService(firebaseFirestore: FirebaseFirestore.instance),
+  );
+
+  late UserModel user;
+  bool isLikeAnimating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUserValue = ref.read(userProvider);
+
+    currentUserValue.whenData((currentUser) => user = currentUser);
+  }
+
+  void likePost() async {
+    final result = await _postController.likePost(
+        widget.post.postId, user.userId, widget.post.likes);
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,37 +58,83 @@ class PostCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.white,
-                    backgroundImage: NetworkImage(post.profileURL),
+                    backgroundImage: NetworkImage(widget.post.profileURL),
                     radius: 14,
                   ),
                   const SizedBox(
                     width: 5,
                   ),
-                  Text(post.username),
+                  Text(widget.post.username),
                 ],
               ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.more_horiz),
-              ),
+              widget.post.userId == user.userId
+                  ? IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.more_horiz),
+                    )
+                  : Container(),
             ],
           ),
         ),
-        AspectRatio(
-          aspectRatio: 1,
-          child: Image.network(
-            post.imageURL,
-            fit: BoxFit.cover,
-          ),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            GestureDetector(
+              onDoubleTap: () {
+                setState(() {
+                  likePost();
+                  isLikeAnimating = true;
+                });
+              },
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Image.network(
+                  widget.post.imageURL,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            AnimatedOpacity(
+              opacity: isLikeAnimating ? 1 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: LikeAnimation(
+                isAnimating: isLikeAnimating,
+                duration: const Duration(
+                  milliseconds: 400,
+                ),
+                onEnd: () {
+                  setState(() {
+                    isLikeAnimating = false;
+                  });
+                },
+                child: const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                  size: 100,
+                ),
+              ),
+            ),
+          ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.favorite_border),
+                LikeAnimation(
+                  isAnimating: widget.post.likes.contains(user.userId),
+                  smallLike: true,
+                  child: IconButton(
+                    onPressed: () {
+                      likePost();
+                    },
+                    icon: widget.post.likes.contains(user.userId)
+                        ? const Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                          )
+                        : const Icon(Icons.favorite_border),
+                  ),
                 ),
                 IconButton(
                   onPressed: () {},
@@ -74,9 +157,9 @@ class PostCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              post.likes.length != 0
+              widget.post.likes.length != 0
                   ? Text(
-                      '${post.likes.length} likes',
+                      '${widget.post.likes.length} likes',
                     )
                   : Container(),
               const SizedBox(
@@ -84,10 +167,10 @@ class PostCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Text(post.username),
+                  Text(widget.post.username),
                   RichText(
                     text: TextSpan(
-                      text: '  ${post.description}',
+                      text: '  ${widget.post.description}',
                     ),
                   ),
                 ],
@@ -102,7 +185,7 @@ class PostCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Text(
-                  DateFormat.yMMMd().format(post.datePublished.toDate()),
+                  DateFormat.yMMMd().format(widget.post.datePublished.toDate()),
                   style: const TextStyle(
                     color: secondaryColor,
                   ),
