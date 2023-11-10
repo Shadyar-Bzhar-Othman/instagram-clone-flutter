@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramclone/firebase_options.dart';
+import 'package:instagramclone/ui/pages/home_page.dart';
 import 'package:instagramclone/ui/pages/login_page.dart';
 import 'package:instagramclone/ui/pages/signup_page.dart';
 import 'package:instagramclone/utils/colors.dart';
@@ -24,7 +25,7 @@ class InstagramClone extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: backgroundColor,
       ),
-      home: const LoginPage(),
+      home: const HomePage(),
     );
   }
 }
