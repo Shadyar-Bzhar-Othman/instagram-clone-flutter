@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramclone/firebase_options.dart';
 import 'package:instagramclone/ui/pages/home_page.dart';
 import 'package:instagramclone/ui/pages/login_page.dart';
 import 'package:instagramclone/ui/pages/signup_page.dart';
+import 'package:instagramclone/ui/shared/pages/loading_page.dart';
 import 'package:instagramclone/utils/colors.dart';
 
 void main() async {
@@ -25,7 +27,26 @@ class InstagramClone extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: backgroundColor,
       ),
-      home: const HomePage(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingPage();
+          }
+
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text('Failed to load the app'),
+            );
+          }
+
+          if (snapshot.hasData) {
+            return const HomePage();
+          }
+
+          return const LoginPage();
+        },
+      ),
     );
   }
 }

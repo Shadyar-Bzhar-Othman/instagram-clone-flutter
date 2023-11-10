@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,13 +54,16 @@ class _SignupPageState extends State<SignupPage> {
     String result = await _userController.signup(
         _email, _password, _username, _profileImage);
 
-    if (result != 'Success') {
-      showSnackbar(context, result);
-    }
-
     setState(() {
       _isLoading = false;
     });
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+      return;
+    }
+
+    Navigator.pop(context);
   }
 
   Future<void> pickProfileImage() async {

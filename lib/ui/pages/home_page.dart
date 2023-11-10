@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/ui/pages/add_post_page.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       } else if (_currentIndex == 3) {
         content = const FeedPage();
       } else if (_currentIndex == 4) {
+        FirebaseAuth.instance.signOut();
         content = const FeedPage();
       }
     });
