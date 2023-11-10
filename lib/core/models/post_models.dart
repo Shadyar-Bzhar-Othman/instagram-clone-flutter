@@ -21,7 +21,9 @@ class Post {
     required this.likes,
   });
 
-  factory Post.fromJson(Map<String, dynamic> snapshotData) {
+  factory Post.fromJson(DocumentSnapshot documentSnapshot) {
+    final snapshotData = documentSnapshot.data() as Map<String, dynamic>;
+
     return Post(
       userId: snapshotData['userId'],
       username: snapshotData['username'],

@@ -5,30 +5,30 @@ import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/utils/helpers.dart';
 import 'package:uuid/uuid.dart';
 
-class AddPostService {
-  AddPostService({required FirebaseFirestore firebaseFirestore})
+class PostService {
+  PostService({required FirebaseFirestore firebaseFirestore})
       : _firebaseFirestore = firebaseFirestore;
 
   final FirebaseFirestore _firebaseFirestore;
 
-  Future<List<Post>> getPosts() async {
-    List<Post> posts = [];
-    String result = '';
-    try {
-      QuerySnapshot postsSnapshot =
-          await _firebaseFirestore.collection('posts').get();
+  // Future<List<Post>> getPosts() async {
+  //   List<Post> posts = [];
+  //   String result = '';
+  //   try {
+  //     QuerySnapshot postsSnapshot =
+  //         await _firebaseFirestore.collection('posts').get();
 
-      posts = postsSnapshot.docs
-          .map((post) => Post.fromJson(post.data() as Map<String, dynamic>))
-          .toList();
+  //     posts = postsSnapshot.docs
+  //         .map((post) => Post.fromJson(post.data() as Map<String, dynamic>))
+  //         .toList();
 
-      result = 'Success';
-    } catch (ex) {
-      result = ex.toString();
-    }
+  //     result = 'Success';
+  //   } catch (ex) {
+  //     result = ex.toString();
+  //   }
 
-    return posts;
-  }
+  //   return posts;
+  // }
 
   Future<String> addPost(String userId, String username, String profileURL,
       Uint8List? image, String description) async {
