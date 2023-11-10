@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/models/post_models.dart';
@@ -24,20 +25,30 @@ class FeedPage extends StatelessWidget {
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return PostCard(
-              post: Post(
-            userId: '1',
-            username: 'Shadyar Bzhar Othman',
-            profileURL: '',
-            postId: '1',
-            imageURL: 'https://wallpaperaccess.com/full/9095169.jpg',
-            description: 'Hello World',
-            datePublished: '2023-10-30',
-            likes: [],
-          ));
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('posts')
+            .orderBy('datePublished', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final QuerySnapshot snapshotData = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: snapshotData.docs.length,
+            itemBuilder: (context, index) {
+              return PostCard(
+                post: Post.fromJson(
+                  snapshotData.docs[index],
+                ),
+              );
+            },
+          );
         },
       ),
     );

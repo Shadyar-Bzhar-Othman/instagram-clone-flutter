@@ -21,7 +21,7 @@ class PostCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.white,
-                    backgroundImage: NetworkImage(post.imageURL),
+                    backgroundImage: NetworkImage(post.profileURL),
                     radius: 14,
                   ),
                   const SizedBox(
@@ -102,8 +102,7 @@ class PostCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Text(
-                  // DateFormat.yMMMd().format(post.datePublished.toDate(),
-                  post.datePublished,
+                  DateFormat.yMMMd().format(post.datePublished.toDate()),
                   style: const TextStyle(
                     color: secondaryColor,
                   ),
