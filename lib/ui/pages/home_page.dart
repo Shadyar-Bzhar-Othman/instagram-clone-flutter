@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:instagramclone/ui/pages/feed_page.dart';
 import 'package:instagramclone/utils/colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,22 +12,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  Widget content = const Text('');
+  Widget content = const FeedPage();
 
   void changeScreen(int index) {
     setState(() {
       _currentIndex = index;
 
       if (_currentIndex == 0) {
-        content = const Text('');
+        content = const FeedPage();
       } else if (_currentIndex == 1) {
-        content = const Text('');
+        content = const FeedPage();
       } else if (_currentIndex == 2) {
-        content = const Text('');
+        content = const FeedPage();
       } else if (_currentIndex == 3) {
-        content = const Text('');
+        content = const FeedPage();
       } else if (_currentIndex == 4) {
-        content = const Text('');
+        content = const FeedPage();
       }
     });
   }
@@ -43,7 +44,7 @@ class _HomePageState extends State<HomePage> {
           unselectedItemColor: secondaryColor,
           showSelectedLabels: false,
           showUnselectedLabels: false,
-          currentIndex: 0,
+          currentIndex: _currentIndex,
           onTap: changeScreen,
           items: const [
             BottomNavigationBarItem(
