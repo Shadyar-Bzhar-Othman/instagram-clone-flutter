@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   Widget content = const FeedPage();
 
-  void changeScreen(int index) {
+  void changePage(int index) {
     setState(() {
       _currentIndex = index;
 
@@ -25,7 +25,9 @@ class _HomePageState extends State<HomePage> {
       } else if (_currentIndex == 1) {
         content = const FeedPage();
       } else if (_currentIndex == 2) {
-        content = const AddPostPage();
+        content = AddPostPage(
+          changePage: changePage,
+        );
       } else if (_currentIndex == 3) {
         content = const FeedPage();
       } else if (_currentIndex == 4) {
@@ -48,7 +50,7 @@ class _HomePageState extends State<HomePage> {
           showSelectedLabels: false,
           showUnselectedLabels: false,
           currentIndex: _currentIndex,
-          onTap: changeScreen,
+          onTap: changePage,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_filled),

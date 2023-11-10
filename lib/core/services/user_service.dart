@@ -14,6 +14,15 @@ class UserService {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firebaseFirestore;
 
+  Future<UserModel> getCurrentUserDetail() async {
+    User currentUser = _firebaseAuth.currentUser!;
+
+    final documentSnapshot =
+        await _firebaseFirestore.collection('users').doc(currentUser.uid).get();
+
+    return UserModel.fromJson(documentSnapshot);
+  }
+
   Future<String> login(String email, String password) async {
     String result = '';
     try {

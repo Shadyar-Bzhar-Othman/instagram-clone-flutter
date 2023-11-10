@@ -1,19 +1,34 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instagramclone/core/controllers/post_controller.dart';
+import 'package:instagramclone/core/controllers/user_controller.dart';
+import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/services/post_service.dart';
+import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/helpers.dart';
 
-class AddPostPage extends StatefulWidget {
-  const AddPostPage({super.key});
+class AddPostPage extends ConsumerStatefulWidget {
+  const AddPostPage({super.key, required this.changePage});
+
+  final Function(int index) changePage;
 
   @override
-  State<AddPostPage> createState() => _AddPostPageState();
+  ConsumerState<AddPostPage> createState() => _AddPostPageState();
 }
 
-class _AddPostPageState extends State<AddPostPage> {
+class _AddPostPageState extends ConsumerState<AddPostPage> {
+  final PostController _postController = PostController(
+    postService: PostService(firebaseFirestore: FirebaseFirestore.instance),
+  );
+
   Uint8List? _selectedImage;
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _captionController = TextEditingController();
   bool _isLoading = false;
 
   void selectImage() async {
@@ -26,14 +41,39 @@ class _AddPostPageState extends State<AddPostPage> {
     }
   }
 
-  void post() {
+  void post() async {
     setState(() {
       _isLoading = true;
     });
 
-    setState(() {
-      _isLoading = false;
-    });
+    final currentUserValue = ref.read(userProvider);
+
+    currentUserValue.when(
+      data: (currentUser) async {
+        final descreption = _captionController.text;
+
+        final result = await _postController.addPost(
+          currentUser.userId,
+          currentUser.username,
+          currentUser.profileImageURL,
+          _selectedImage,
+          descreption,
+        );
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (result != 'Success') {
+          showSnackbar(context, result);
+          return;
+        }
+
+        widget.changePage(0);
+      },
+      error: (error, stackTrace) {},
+      loading: () {},
+    );
   }
 
   @override
@@ -80,7 +120,7 @@ class _AddPostPageState extends State<AddPostPage> {
                     ),
                     Expanded(
                       child: TextField(
-                        controller: _controller,
+                        controller: _captionController,
                         textAlign: TextAlign.start,
                         decoration: const InputDecoration(
                           hintText: 'Write a caption...',
