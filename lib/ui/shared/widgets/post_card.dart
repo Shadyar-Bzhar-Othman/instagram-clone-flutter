@@ -76,6 +76,11 @@ class _PostCardState extends ConsumerState<PostCard> {
             ],
           ),
         ),
+        widget.post.userId == user.userId
+            ? Container()
+            : const SizedBox(
+                height: 6,
+              ),
         Stack(
           alignment: Alignment.center,
           children: [
