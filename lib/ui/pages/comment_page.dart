@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instagramclone/core/controllers/comment_controller.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/comment_model.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/services/comment_service.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/comment_card.dart';
 import 'package:instagramclone/utils/colors.dart';
 
@@ -18,6 +21,11 @@ class CommentPage extends ConsumerStatefulWidget {
 }
 
 class _CommentPageState extends ConsumerState<CommentPage> {
+  final CommentController _commentController = CommentController(
+    commentService:
+        CommentService(firebaseFirestore: FirebaseFirestore.instance),
+  );
+
   late UserModel user;
   final TextEditingController _commentTextController = TextEditingController();
 
@@ -26,7 +34,36 @@ class _CommentPageState extends ConsumerState<CommentPage> {
     super.initState();
     final currentUserValue = ref.read(userProvider);
 
-    currentUserValue.whenData((currentUser) => user = currentUser);
+    currentUserValue.whenData((currentUser) {
+      user = currentUser;
+    });
+  }
+
+  void addComment() async {
+    final String text = _commentTextController.text;
+
+    final result = await _commentController.addComment(
+      user.userId,
+      user.username,
+      user.profileImageURL,
+      widget.post.postId,
+      text,
+    );
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+    }
+
+    _commentTextController.clear();
+  }
+
+  void deleteComment(CommentModel comment) async {
+    final result = await _commentController.deleteComment(
+        widget.post.postId, comment.commentId);
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+    }
   }
 
   @override
@@ -50,6 +87,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                   .collection('posts')
                   .doc(widget.post.postId)
                   .collection('comments')
+                  .orderBy('datePublished', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -67,24 +105,32 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                 final QuerySnapshot snapshotData = snapshot.data!;
 
                 return ListView.builder(
-                  // itemCount: snapshotData.docs.length,
-                  itemCount: 10,
+                  itemCount: snapshotData.docs.length,
                   itemBuilder: (context, index) {
-                    return CommentCard(
-                      // comment: CommentModel.fromJson(
-                      //   snapshotData.docs[index],
-                      comment: CommentModel(
-                        userId: '1',
-                        username: 'Shadyar Bzhar Othman',
-                        profileURL:
-                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGxkV3U56UXcCBKREVzK7LDU6Bd22Q2iIgKg&usqp=CAU',
-                        commentId: '3',
-                        text:
-                            'Heyyyyyyyyy I\'m from kurdistan mann yooooooooooooo',
-                        datePublished: '2-2-2023',
-                        likes: [1, 3, 4, 23, 1],
-                      ),
+                    final comment = CommentModel.fromJson(
+                      snapshotData.docs[index],
                     );
+                    return user.userId == comment.userId
+                        ? Dismissible(
+                            onDismissed: (direction) {
+                              deleteComment(comment);
+                            },
+                            background: Container(
+                              color: Colors.red,
+                              child: const Icon(
+                                Icons.delete,
+                              ),
+                            ),
+                            key: ValueKey<CommentModel>(comment),
+                            child: CommentCard(
+                              post: widget.post,
+                              comment: comment,
+                            ),
+                          )
+                        : CommentCard(
+                            post: widget.post,
+                            comment: comment,
+                          );
                   },
                 );
               },
@@ -109,7 +155,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                       border: InputBorder.none,
                       hintText: 'Add a comment for ${widget.post.username}',
                       suffix: TextButton(
-                        onPressed: () {},
+                        onPressed: addComment,
                         child: const Text(
                           'Post',
                           style: TextStyle(

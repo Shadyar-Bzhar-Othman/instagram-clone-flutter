@@ -34,7 +34,9 @@ class _PostCardState extends ConsumerState<PostCard> {
     super.initState();
     final currentUserValue = ref.read(userProvider);
 
-    currentUserValue.whenData((currentUser) => user = currentUser);
+    currentUserValue.whenData((currentUser) {
+      user = currentUser;
+    });
   }
 
   void likePost() async {
