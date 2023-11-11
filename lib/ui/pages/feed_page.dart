@@ -43,7 +43,7 @@ class FeedPage extends StatelessWidget {
             itemCount: snapshotData.docs.length,
             itemBuilder: (context, index) {
               return PostCard(
-                post: Post.fromJson(
+                post: PostModel.fromJson(
                   snapshotData.docs[index],
                 ),
               );

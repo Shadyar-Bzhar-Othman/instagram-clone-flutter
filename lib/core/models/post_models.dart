@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Post {
+class PostModel {
   final String userId;
   final String username;
   final String profileURL;
@@ -10,7 +10,7 @@ class Post {
   final datePublished;
   final List likes;
 
-  Post({
+  PostModel({
     required this.userId,
     required this.username,
     required this.profileURL,
@@ -21,10 +21,10 @@ class Post {
     required this.likes,
   });
 
-  factory Post.fromJson(DocumentSnapshot documentSnapshot) {
+  factory PostModel.fromJson(DocumentSnapshot documentSnapshot) {
     final snapshotData = documentSnapshot.data() as Map<String, dynamic>;
 
-    return Post(
+    return PostModel(
       userId: snapshotData['userId'],
       username: snapshotData['username'],
       profileURL: snapshotData['profileURL'],

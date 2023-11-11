@@ -73,6 +73,12 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _captionController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _selectedImage != null
         ? Scaffold(

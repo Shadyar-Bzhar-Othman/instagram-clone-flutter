@@ -6,6 +6,7 @@ import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/services/post_service.dart';
+import 'package:instagramclone/ui/pages/comment_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/like_animation.dart';
 import 'package:instagramclone/utils/colors.dart';
@@ -14,7 +15,7 @@ import 'package:intl/intl.dart';
 class PostCard extends ConsumerStatefulWidget {
   const PostCard({super.key, required this.post});
 
-  final Post post;
+  final PostModel post;
 
   @override
   ConsumerState<PostCard> createState() => _PostCardState();
@@ -142,7 +143,14 @@ class _PostCardState extends ConsumerState<PostCard> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommentPage(post: widget.post),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.comment),
                 ),
                 IconButton(

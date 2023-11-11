@@ -38,7 +38,7 @@ class PostService {
 
       String imageURL = await uploadFileToFirebaseStorage('posts', image, true);
 
-      Post post = Post(
+      PostModel post = PostModel(
         userId: userId,
         username: username,
         profileURL: profileURL,
