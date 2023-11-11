@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/ui/pages/add_post_page.dart';
 import 'package:instagramclone/ui/pages/feed_page.dart';
+import 'package:instagramclone/ui/pages/search_page.dart';
 import 'package:instagramclone/utils/colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
       if (_currentIndex == 0) {
         content = const FeedPage();
       } else if (_currentIndex == 1) {
-        content = const FeedPage();
+        content = const SearchPage();
       } else if (_currentIndex == 2) {
         content = AddPostPage(
           changePage: changePage,
