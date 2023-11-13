@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramclone/utils/colors.dart';
-import 'package:instagramclone/utils/consts.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
