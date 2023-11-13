@@ -16,56 +16,48 @@ class StoryService {
   final FirebaseFirestore _firebaseFirestore;
 
   Future<List<UserModel>> getUserWithActiveStory(String userId) async {
-    List<UserModel> users = [];
+    List<UserModel> allActiveUsersWithStories = [];
+    List<DocumentSnapshot> activeUsersWithStories = [];
 
     String result = '';
     try {
-      List<UserModel> followingUsers = [];
-      List<StoryModel> stories = [];
-      Map<UserModel, dynamic> userCounter = {};
+      DocumentSnapshot currentUserSnapshot =
+          await _firebaseFirestore.collection('users').doc(userId).get();
 
-      QuerySnapshot usersSnapshot = await _firebaseFirestore
-          .collection('users')
-          .where("userId", isEqualTo: userId)
-          .get();
+      UserModel currentUser = UserModel.fromJson(currentUserSnapshot);
 
-      followingUsers = usersSnapshot.docs
-          .map((user) => UserModel.fromQueryDocumentSnapshot(user))
-          .toList();
+      allActiveUsersWithStories.add(currentUser);
 
-      followingUsers.forEach((user) {
-        userCounter[user] = 0;
-      });
+      List following = [currentUser.userId, ...currentUser.following];
 
-      QuerySnapshot activeStoriesSnapshot = await _firebaseFirestore
-          .collection('stories')
-          .where("isActive", isEqualTo: true)
-          .get();
+      for (String userId in following) {
+        QuerySnapshot userStories = await _firebaseFirestore
+            .collection('stories')
+            .where('userId', isEqualTo: userId)
+            .get();
 
-      stories = activeStoriesSnapshot.docs
-          .map((story) => StoryModel.fromQueryDocumentSnapshot(story))
-          .toList();
+        List<DocumentSnapshot> activeStories = userStories.docs
+            .where((story) => story['isActive'] == true)
+            .toList();
 
-      followingUsers.forEach((user) {
-        stories.forEach((story) {
-          if (user.userId == story.storyId) {
-            userCounter[user] += 1;
-          }
-        });
-      });
-
-      userCounter.forEach((key, value) {
-        if (value > 0) {
-          users.add(key);
+        if (activeStories.length > 0) {
+          activeUsersWithStories.add(
+              await _firebaseFirestore.collection('users').doc(userId).get());
         }
-      });
+      }
+
+      allActiveUsersWithStories.addAll(activeUsersWithStories
+          .map(
+            (user) => UserModel.fromJson(user),
+          )
+          .toList());
 
       result = 'Success';
     } catch (ex) {
       result = ex.toString();
     }
 
-    return users;
+    return allActiveUsersWithStories;
   }
 
   Future<List<StoryModel>> getStories(String userId) async {

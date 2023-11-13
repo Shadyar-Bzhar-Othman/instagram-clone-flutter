@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:instagramclone/core/controllers/story_controller.dart';
 import 'package:instagramclone/core/models/story_model.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/services/story_service.dart';
 import 'package:instagramclone/ui/shared/widgets/story_bars.dart';
 import 'package:instagramclone/ui/shared/widgets/story_percent_indecator.dart';
 
@@ -17,27 +20,39 @@ class StoryPage extends StatefulWidget {
 }
 
 class _StoryPageState extends State<StoryPage> {
+  final StoryController _storyController = StoryController(
+    storyService: StoryService(firebaseFirestore: FirebaseFirestore.instance),
+  );
+
   late Timer _storyTimer;
   int currentStory = 0;
-  List<String> _stories = [
-    's',
-    's',
-    's',
-    's',
-    's',
-    's',
-  ];
+  List<StoryModel> _stories = [];
   List<double> _percents = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
+    getStories();
+  }
+
+  void getStories() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _stories = await _storyController.getStories(widget.user.userId);
+
     _stories.forEach((story) {
       _percents.add(0);
     });
 
-    // startWatching();
+    setState(() {
+      _isLoading = false;
+    });
+
+    startWatching();
   }
 
   void startWatching() {
@@ -55,10 +70,39 @@ class _StoryPageState extends State<StoryPage> {
             startWatching();
           }
         } else {
-          print(1);
+          _storyTimer.cancel();
+          Navigator.pop(context);
         }
       });
     });
+  }
+
+  void onTap(TapDownDetails details) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double dx = details.globalPosition.dx;
+
+    if (dx < screenWidth / 2) {
+      setState(() {
+        if (currentStory != 0) {
+          _percents[currentStory - 1] = 0;
+          _percents[currentStory] = 0;
+
+          currentStory--;
+        } else {
+          _percents[currentStory] = 0;
+        }
+      });
+    } else {
+      setState(() {
+        if (currentStory != _stories.length - 1) {
+          _percents[currentStory] = 1;
+
+          currentStory++;
+        } else {
+          _percents[currentStory] = 1;
+        }
+      });
+    }
   }
 
   @override
@@ -70,75 +114,87 @@ class _StoryPageState extends State<StoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image.network(
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdxqCRBVi8V3xiVudx-MoDjmGZ0mj-L2WqjV985Zktex1AfQ761TAf47OLnjDRb-L7NMg&usqp=CAU',
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-            ),
-          ),
-          Positioned(
-            top: 20,
-            right: 5,
-            left: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StoryBars(barsPercent: _percents),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : GestureDetector(
+              onTapDown: onTap,
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Image.network(
+                      _stories[currentStory].imageURL,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                    ),
+                  ),
+                  Positioned(
+                    top: 20,
+                    right: 5,
+                    left: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 18,
-                        ),
+                        StoryBars(barsPercent: _percents),
                         const SizedBox(
-                          width: 5,
+                          height: 10,
                         ),
-                        Text(
-                          'Shadyar Bzhar Othman',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w300,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  backgroundImage:
+                                      NetworkImage(widget.user.profileImageURL),
+                                  radius: 18,
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  widget.user.username,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: const Icon(
+                                    Icons.more_horiz,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                // Separating all pop and navigating in a different file so I just use them || Refactor all the code
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 35,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {},
-                          child: const Icon(
-                            Icons.more_horiz,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: const Icon(
-                            Icons.close,
-                            size: 35,
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 }
