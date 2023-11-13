@@ -36,6 +36,21 @@ class StoryModel {
     );
   }
 
+  factory StoryModel.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
+    final snapshotData = snapshot.data() as Map<String, dynamic>;
+
+    return StoryModel(
+      userId: snapshotData['userId'],
+      username: snapshotData['username'],
+      profileURL: snapshotData['profileURL'],
+      storyId: snapshotData['storyId'],
+      imageURL: snapshotData['imageURL'],
+      datePublished: snapshotData['datePublished'],
+      viewers: List<String>.from(snapshotData['viewers'] ?? []),
+      isActive: snapshotData['isActive'] ?? false,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,

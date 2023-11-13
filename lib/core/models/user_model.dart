@@ -33,6 +33,20 @@ class UserModel {
     );
   }
 
+  factory UserModel.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
+    final snapshotData = snapshot.data() as Map<String, dynamic>;
+
+    return UserModel(
+      userId: snapshotData['userId'],
+      username: snapshotData['username'],
+      profileImageURL: snapshotData['profileImageURL'],
+      email: snapshotData['email'],
+      bio: snapshotData['bio'],
+      follower: snapshotData['follower'],
+      following: snapshotData['following'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
