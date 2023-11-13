@@ -5,3 +5,4 @@ const searchColor = Color.fromRGBO(38, 38, 38, 1);
 const blueColor = Color.fromRGBO(0, 149, 246, 1);
 const primaryColor = Colors.white;
 const secondaryColor = Colors.grey;
+const pinkColor = Color.fromRGBO(214, 41, 118, 1);
