@@ -36,6 +36,36 @@ class PostModel {
     );
   }
 
+  factory PostModel.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
+    final snapshotData = snapshot.data() as Map<String, dynamic>;
+
+    return PostModel(
+      userId: snapshotData['userId'],
+      username: snapshotData['username'],
+      profileURL: snapshotData['profileURL'],
+      postId: snapshotData['postId'],
+      imageURL: snapshotData['imageURL'],
+      description: snapshotData['description'],
+      datePublished: snapshotData['datePublished'],
+      likes: snapshotData['likes'],
+    );
+  }
+
+  factory PostModel.fromMap(Map<String, dynamic> snapshot) {
+    final snapshotData = snapshot;
+
+    return PostModel(
+      userId: snapshotData['userId'],
+      username: snapshotData['username'],
+      profileURL: snapshotData['profileURL'],
+      postId: snapshotData['postId'],
+      imageURL: snapshotData['imageURL'],
+      description: snapshotData['description'],
+      datePublished: snapshotData['datePublished'],
+      likes: snapshotData['likes'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,

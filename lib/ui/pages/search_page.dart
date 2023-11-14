@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/ui/pages/user_profile_page.dart';
 import 'package:instagramclone/utils/colors.dart';
 
 class SearchPage extends StatefulWidget {
@@ -64,21 +66,34 @@ class _SearchPageState extends State<SearchPage> {
                   );
                 }
 
+                final List<UserModel> data = snapshot.data!.docs
+                    .map((user) =>
+                        UserModel.fromMap(user.data() as Map<String, dynamic>))
+                    .toList();
+
                 return ListView.builder(
-                  itemCount: (snapshot.data! as dynamic).docs.length,
+                  itemCount: data.length,
                   itemBuilder: (context, index) {
                     return InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserProfilePage(
+                              user: data[index],
+                            ),
+                          ),
+                        );
+                      },
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(
-                            (snapshot.data! as dynamic).docs[index]
-                                ['profileImageURL'],
+                            data[index].profileImageURL,
                           ),
                           radius: 16,
                         ),
                         title: Text(
-                          (snapshot.data! as dynamic).docs[index]['username'],
+                          data[index].username,
                         ),
                       ),
                     );

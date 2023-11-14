@@ -95,4 +95,32 @@ class UserService {
 
     return result;
   }
+
+  Future<String> followUser(
+      String userId, String userFollowId, List following) async {
+    String result = '';
+    try {
+      if (following.contains(userFollowId)) {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'following': FieldValue.arrayRemove([userFollowId]),
+        });
+        await _firebaseFirestore.collection('users').doc(userFollowId).update({
+          'follower': FieldValue.arrayRemove([userId]),
+        });
+      } else {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'following': FieldValue.arrayUnion([userFollowId]),
+        });
+        await _firebaseFirestore.collection('users').doc(userFollowId).update({
+          'follower': FieldValue.arrayUnion([userId]),
+        });
+      }
+
+      result = 'Success';
+    } catch (ex) {
+      result = ex.toString();
+    }
+
+    return result;
+  }
 }

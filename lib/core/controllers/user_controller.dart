@@ -29,6 +29,14 @@ class UserController {
 
     return result;
   }
+
+  Future<String> followUser(
+      String userId, String userFollowId, List following) async {
+    String result =
+        await _userService.followUser(userId, userFollowId, following);
+
+    return result;
+  }
 }
 
 final userProvider = FutureProvider((ref) async {
