@@ -8,6 +8,7 @@ class UserModel {
   final String bio;
   final List follower;
   final List following;
+  final List savedPost;
 
   UserModel({
     required this.userId,
@@ -17,6 +18,7 @@ class UserModel {
     required this.bio,
     required this.follower,
     required this.following,
+    required this.savedPost,
   });
 
   factory UserModel.fromJson(DocumentSnapshot documentSnapshot) {
@@ -30,6 +32,7 @@ class UserModel {
       bio: snapshotData['bio'],
       follower: snapshotData['follower'],
       following: snapshotData['following'],
+      savedPost: snapshotData['savedPost'],
     );
   }
 
@@ -44,6 +47,7 @@ class UserModel {
       bio: snapshotData['bio'],
       follower: snapshotData['follower'],
       following: snapshotData['following'],
+      savedPost: snapshotData['savedPost'],
     );
   }
 

@@ -60,6 +60,7 @@ class UserService {
         bio: '',
         follower: [],
         following: [],
+        savedPost: [],
       );
 
       await _firebaseFirestore
@@ -71,6 +72,27 @@ class UserService {
     } catch (ex) {
       result = ex.toString();
     }
+    return result;
+  }
+
+  Future<String> savePost(String userId, String postId, List savedPost) async {
+    String result = '';
+    try {
+      if (savedPost.contains(postId)) {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'savedPost': FieldValue.arrayRemove([postId]),
+        });
+      } else {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'savedPost': FieldValue.arrayUnion([postId]),
+        });
+      }
+
+      result = 'Success';
+    } catch (ex) {
+      result = ex.toString();
+    }
+
     return result;
   }
 }

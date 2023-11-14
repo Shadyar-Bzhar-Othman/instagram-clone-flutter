@@ -23,6 +23,12 @@ class UserController {
       Uint8List? profileImage) async {
     return _userService.signup(email, password, username, profileImage);
   }
+
+  Future<String> savePost(String userId, String postId, List savedPost) async {
+    String result = await _userService.savePost(userId, postId, savedPost);
+
+    return result;
+  }
 }
 
 final userProvider = FutureProvider((ref) async {

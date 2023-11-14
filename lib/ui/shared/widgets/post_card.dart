@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/controllers/post_controller.dart';
@@ -6,6 +7,7 @@ import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/services/post_service.dart';
+import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/comment_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/like_animation.dart';
@@ -22,6 +24,13 @@ class PostCard extends ConsumerStatefulWidget {
 }
 
 class _PostCardState extends ConsumerState<PostCard> {
+  final UserController _userController = UserController(
+    UserService(
+      firebaseAuth: FirebaseAuth.instance,
+      firebaseFirestore: FirebaseFirestore.instance,
+    ),
+  );
+
   final PostController _postController = PostController(
     postService: PostService(firebaseFirestore: FirebaseFirestore.instance),
   );
@@ -35,13 +44,25 @@ class _PostCardState extends ConsumerState<PostCard> {
     final currentUserValue = ref.read(userProvider);
 
     currentUserValue.whenData((currentUser) {
-      user = currentUser;
+      setState(() {
+        user = currentUser;
+      });
     });
   }
 
   void likePost() async {
     final result = await _postController.likePost(
         widget.post.postId, user.userId, widget.post.likes);
+
+    if (result != 'Success') {
+      showSnackbar(context, result);
+    }
+  }
+
+  void savePost() async {
+    // Not real time update
+    final result = await _userController.savePost(
+        user.userId, widget.post.postId, user.savedPost);
 
     if (result != 'Success') {
       showSnackbar(context, result);
@@ -169,8 +190,12 @@ class _PostCardState extends ConsumerState<PostCard> {
                 ],
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.bookmark_border),
+                onPressed: () {
+                  savePost();
+                },
+                icon: user.savedPost.contains(widget.post.postId)
+                    ? const Icon(Icons.bookmark)
+                    : const Icon(Icons.bookmark_border),
               ),
             ],
           ),
