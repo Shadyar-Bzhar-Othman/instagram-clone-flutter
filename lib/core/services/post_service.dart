@@ -11,28 +11,51 @@ class PostService {
 
   final FirebaseFirestore _firebaseFirestore;
 
-  // Future<List<Post>> getPosts() async {
-  //   List<Post> posts = [];
-  //   String result = '';
-  //   try {
-  //     QuerySnapshot postsSnapshot =
-  //         await _firebaseFirestore.collection('posts').get();
+  Future<List<PostModel>> getAllPost() async {
+    List<PostModel> posts = [];
 
-  //     posts = postsSnapshot.docs
-  //         .map((post) => Post.fromJson(post.data() as Map<String, dynamic>))
-  //         .toList();
+    try {
+      final querySnapshot = await _firebaseFirestore
+          .collection('posts')
+          .orderBy('datePublished', descending: true)
+          .get();
 
-  //     result = 'Success';
-  //   } catch (ex) {
-  //     result = ex.toString();
-  //   }
+      posts = querySnapshot.docs
+          .map((user) => PostModel.fromJson(user.data()))
+          .toList();
+    } catch (ex) {
+      posts = [];
+      rethrow;
+    }
 
-  //   return posts;
-  // }
+    return posts;
+  }
 
-  Future<String> addPost(String userId, String username, String profileURL,
-      Uint8List? image, String description) async {
-    String result = '';
+  Future<List<PostModel>> getUserPost(String userId) async {
+    List<PostModel> posts = [];
+
+    try {
+      final querySnapshot = await _firebaseFirestore
+          .collection('posts')
+          .where('userId', isEqualTo: userId)
+          .orderBy('datePublished', descending: true)
+          .get();
+
+      posts = querySnapshot.docs
+          .map((user) => PostModel.fromJson(user.data()))
+          .toList();
+    } catch (ex) {
+      posts = [];
+      rethrow;
+    }
+
+    return posts;
+  }
+
+  Future<List<PostModel>> addPost(String userId, String username,
+      String profileURL, Uint8List? image, String description) async {
+    List<PostModel> posts = [];
+
     try {
       String postId = const Uuid().v1();
 
@@ -54,29 +77,34 @@ class PostService {
           .doc(postId)
           .set(post.toJson());
 
-      result = 'Success';
+      posts = await getAllPost();
     } catch (ex) {
-      result = ex.toString();
+      posts = [];
+      rethrow;
     }
 
-    return result;
+    return posts;
   }
 
-  Future<String> deletePost(String postId) async {
-    String result = '';
+  Future<List<PostModel>> deletePost(String postId) async {
+    List<PostModel> posts = [];
+
     try {
       await _firebaseFirestore.collection('posts').doc(postId).delete();
 
-      result = 'Success';
+      posts = await getAllPost();
     } catch (ex) {
-      result = ex.toString();
+      posts = [];
+      rethrow;
     }
 
-    return result;
+    return posts;
   }
 
-  Future<String> likePost(String postId, String userId, List likes) async {
-    String result = '';
+  Future<List<PostModel>> likePost(
+      String postId, String userId, List likes) async {
+    List<PostModel> posts = [];
+
     try {
       if (likes.contains(userId)) {
         await _firebaseFirestore.collection('posts').doc(postId).update({
@@ -88,11 +116,12 @@ class PostService {
         });
       }
 
-      result = 'Success';
+      posts = await getAllPost();
     } catch (ex) {
-      result = ex.toString();
+      posts = [];
+      rethrow;
     }
 
-    return result;
+    return posts;
   }
 }

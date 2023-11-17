@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:instagramclone/core/controllers/auth_controller.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
+import 'package:instagramclone/core/services/auth_service.dart';
 import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/signup_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
@@ -13,22 +16,29 @@ import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
 import 'package:instagramclone/utils/validators.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final UserController _userController = UserController(
-    UserService(
-      firebaseAuth: FirebaseAuth.instance,
-      firebaseFirestore: FirebaseFirestore.instance,
-    ),
-  );
+class _LoginPageState extends ConsumerState<LoginPage> {
+  late final AuthController _authController;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _authController = AuthController(
+      ref: ref,
+      authService: AuthService(
+        firebaseAuth: FirebaseAuth.instance,
+        firebaseFirestore: FirebaseFirestore.instance,
+      ),
+    );
+  }
 
   String _email = '';
   String _password = '';
@@ -47,13 +57,13 @@ class _LoginPageState extends State<LoginPage> {
 
     _formKey.currentState!.save();
 
-    String result = await _userController.login(_email, _password);
-
-    if (result != 'Success') {
-      showSnackbar(context, result);
-    }
+    String? result = await _authController.login(_email, _password);
 
     print(result);
+
+    if (result != null) {
+      showSnackbar(context, result);
+    }
 
     setState(() {
       _isLoading = false;

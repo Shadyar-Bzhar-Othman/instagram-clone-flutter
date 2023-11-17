@@ -1,33 +1,77 @@
 import 'dart:typed_data';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instagramclone/core/models/comment_model.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/services/comment_service.dart';
 import 'package:instagramclone/core/services/post_service.dart';
 
-class CommentController {
+class CommentController extends StateNotifier<List<CommentModel>> {
+  CommentController({required CommentService commentService})
+      : _commentService = commentService,
+        super([]);
+
   final CommentService _commentService;
 
-  CommentController({required CommentService commentService})
-      : _commentService = commentService;
+  Future<String?> getPostComment(String postId) async {
+    String? result;
 
-  Future<String> addComment(String userId, String username, String profileURL,
+    try {
+      List<CommentModel> comments =
+          await _commentService.getPostComment(postId);
+
+      state = comments;
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
+
+    return result;
+  }
+
+  Future<String?> addComment(String userId, String username, String profileURL,
       String postId, String text) async {
-    String result = await _commentService.addComment(
-        userId, username, profileURL, postId, text);
+    String? result;
+
+    try {
+      List<CommentModel> comments = await _commentService.addComment(
+          userId, username, profileURL, postId, text);
+      state = comments;
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
 
     return result;
   }
 
-  Future<String> deleteComment(String postId, String commentId) async {
-    String result = await _commentService.deleteComment(postId, commentId);
+  Future<String?> deleteComment(String postId, String commentId) async {
+    String? result;
+
+    try {
+      List<CommentModel> comments =
+          await _commentService.deleteComment(postId, commentId);
+      state = comments;
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
 
     return result;
   }
 
-  Future<String> likeComment(
+  Future<String?> likeComment(
       String postId, String commentId, String userId, List likes) async {
-    String result =
-        await _commentService.likeComment(postId, commentId, userId, likes);
+    String? result;
+
+    try {
+      List<CommentModel> comments =
+          await _commentService.likeComment(postId, commentId, userId, likes);
+      state = comments;
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
 
     return result;
   }

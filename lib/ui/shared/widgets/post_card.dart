@@ -6,6 +6,8 @@ import 'package:instagramclone/core/controllers/post_controller.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/post_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/core/services/post_service.dart';
 import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/comment_page.dart';
@@ -24,12 +26,7 @@ class PostCard extends ConsumerStatefulWidget {
 }
 
 class _PostCardState extends ConsumerState<PostCard> {
-  final UserController _userController = UserController(
-    UserService(
-      firebaseAuth: FirebaseAuth.instance,
-      firebaseFirestore: FirebaseFirestore.instance,
-    ),
-  );
+  late final UserController _userController;
 
   final PostController _postController = PostController(
     postService: PostService(firebaseFirestore: FirebaseFirestore.instance),
@@ -41,30 +38,34 @@ class _PostCardState extends ConsumerState<PostCard> {
   @override
   void initState() {
     super.initState();
-    final currentUserValue = ref.read(userProvider);
+    _userController = UserController(
+      ref: ref,
+      userService: UserService(
+        firebaseAuth: FirebaseAuth.instance,
+        firebaseFirestore: FirebaseFirestore.instance,
+      ),
+    );
 
-    currentUserValue.whenData((currentUser) {
-      setState(() {
-        user = currentUser;
-      });
-    });
+    final currentUserData = ref.read(currentUserProvider);
+    user = currentUserData!;
   }
 
   void likePost() async {
-    final result = await _postController.likePost(
-        widget.post.postId, user.userId, widget.post.likes);
+    final result = await ref
+        .read(postProvider.notifier)
+        .likePost(widget.post.postId, user.userId, widget.post.likes);
 
-    if (result != 'Success') {
+    if (result != null) {
       showSnackbar(context, result);
     }
   }
 
   void savePost() async {
     // Not real time update
-    final result = await _userController.savePost(
+    final String? result = await _userController.savePost(
         user.userId, widget.post.postId, user.savedPost);
 
-    if (result != 'Success') {
+    if (result != null) {
       showSnackbar(context, result);
     }
   }

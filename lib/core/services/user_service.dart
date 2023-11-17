@@ -15,90 +15,67 @@ class UserService {
   final FirebaseFirestore _firebaseFirestore;
 
   Future<UserModel> getCurrentUserDetail() async {
-    User currentUser = _firebaseAuth.currentUser!;
+    UserModel? user;
 
-    final documentSnapshot =
-        await _firebaseFirestore.collection('users').doc(currentUser.uid).get();
-
-    return UserModel.fromJson(documentSnapshot);
-  }
-
-  Future<String> login(String email, String password) async {
-    String result = '';
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
+      User currentUser = _firebaseAuth.currentUser!;
 
-      result = 'Success';
-    } catch (ex) {
-      result = ex.toString();
-    }
-    return result;
-  }
-
-  Future<String> signup(String email, String password, String username,
-      Uint8List? profileImage) async {
-    String result = '';
-    try {
-      if (profileImage == null) {
-        throw Exception('Please provide an image');
-      }
-
-      final authResult = await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
-
-      String profileImageURL = await uploadFileToFirebaseStorage(
-          'profilePictures', profileImage, false);
-
-      String userId = authResult.user!.uid;
-
-      UserModel user = UserModel(
-        userId: userId,
-        username: username,
-        profileImageURL: profileImageURL,
-        email: email,
-        bio: '',
-        follower: [],
-        following: [],
-        savedPost: [],
-      );
-
-      await _firebaseFirestore
+      final documentSnapshot = await _firebaseFirestore
           .collection('users')
-          .doc(userId)
-          .set(user.toJson());
+          .doc(currentUser.uid)
+          .get();
 
-      result = 'Success';
+      user =
+          UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
     } catch (ex) {
-      result = ex.toString();
+      user = null;
+      rethrow;
     }
-    return result;
+
+    return user;
   }
 
-  Future<String> savePost(String userId, String postId, List savedPost) async {
-    String result = '';
+  Future<UserModel> getUserDetailById(String userId) async {
+    UserModel? user;
+
     try {
-      if (savedPost.contains(postId)) {
-        await _firebaseFirestore.collection('users').doc(userId).update({
-          'savedPost': FieldValue.arrayRemove([postId]),
-        });
-      } else {
-        await _firebaseFirestore.collection('users').doc(userId).update({
-          'savedPost': FieldValue.arrayUnion([postId]),
-        });
-      }
+      final documentSnapshot =
+          await _firebaseFirestore.collection('users').doc(userId).get();
 
-      result = 'Success';
+      user =
+          UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
     } catch (ex) {
-      result = ex.toString();
+      user = null;
+      rethrow;
     }
 
-    return result;
+    return user;
   }
 
-  Future<String> followUser(
+  Future<List<UserModel>> searchUserByUsername(String username) async {
+    List<UserModel> users = [];
+
+    try {
+      final querySnapshot = await _firebaseFirestore
+          .collection('users')
+          .where('username', isGreaterThanOrEqualTo: username)
+          .get();
+
+      users = querySnapshot.docs
+          .map((user) => UserModel.fromJson(user.data()))
+          .toList();
+    } catch (ex) {
+      users = [];
+      rethrow;
+    }
+
+    return users;
+  }
+
+  Future<UserModel> followUser(
       String userId, String userFollowId, List following) async {
-    String result = '';
+    UserModel? user;
+
     try {
       if (following.contains(userFollowId)) {
         await _firebaseFirestore.collection('users').doc(userId).update({
@@ -116,11 +93,66 @@ class UserService {
         });
       }
 
-      result = 'Success';
+      user = await getUserDetailById(userFollowId);
     } catch (ex) {
-      result = ex.toString();
+      user = null;
+      rethrow;
+    }
+    return user;
+  }
+
+  Future<UserModel> updateUser(
+    String userId,
+    String username,
+    Uint8List? profileImage,
+    String bio,
+  ) async {
+    UserModel? user;
+
+    try {
+      if (profileImage == null) {
+        throw Exception('Please provide an image');
+      }
+
+      String profileImageURL = await uploadFileToFirebaseStorage(
+          'profilePictures', profileImage, false);
+
+      await _firebaseFirestore.collection('users').doc(userId).update({
+        'username': username,
+        'profileImageURL': profileImageURL,
+        'bio': bio,
+      });
+
+      user = await getUserDetailById(userId);
+    } catch (ex) {
+      user = null;
+      rethrow;
     }
 
-    return result;
+    return user;
+  }
+
+  Future<UserModel> savePost(
+      String userId, String postId, List savedPost) async {
+    UserModel? user;
+
+    try {
+      if (savedPost.contains(postId)) {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'savedPost': FieldValue.arrayRemove([postId]),
+        });
+      } else {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'savedPost': FieldValue.arrayUnion([postId]),
+        });
+      }
+
+      user = await getUserDetailById(userId);
+    } catch (ex) {
+      user = null;
+      rethrow;
+    }
+
+    return user;
   }
 }

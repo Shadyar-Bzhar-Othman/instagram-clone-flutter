@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/controllers/post_controller.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/post_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/core/services/post_service.dart';
 import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
@@ -23,10 +25,6 @@ class AddPostPage extends ConsumerStatefulWidget {
 }
 
 class _AddPostPageState extends ConsumerState<AddPostPage> {
-  final PostController _postController = PostController(
-    postService: PostService(firebaseFirestore: FirebaseFirestore.instance),
-  );
-
   Uint8List? _selectedImage;
   final TextEditingController _captionController = TextEditingController();
   bool _isLoading = false;
@@ -46,30 +44,28 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
       _isLoading = true;
     });
 
-    final currentUserValue = ref.read(userProvider);
+    final currentUserData = ref.read(currentUserProvider)!;
 
-    currentUserValue.whenData((currentUser) async {
-      final descreption = _captionController.text;
+    final descreption = _captionController.text;
 
-      final result = await _postController.addPost(
-        currentUser.userId,
-        currentUser.username,
-        currentUser.profileImageURL,
-        _selectedImage,
-        descreption,
-      );
+    final result = await ref.read(postProvider.notifier).addPost(
+          currentUserData.userId,
+          currentUserData.username,
+          currentUserData.profileImageURL,
+          _selectedImage,
+          descreption,
+        );
 
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result != 'Success') {
-        showSnackbar(context, result);
-        return;
-      }
-
-      widget.changePage(0);
+    setState(() {
+      _isLoading = false;
     });
+
+    if (result != null) {
+      showSnackbar(context, result);
+      return;
+    }
+
+    widget.changePage(0);
   }
 
   @override

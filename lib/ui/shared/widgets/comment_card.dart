@@ -6,6 +6,8 @@ import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/comment_model.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/comment_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/core/services/comment_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/like_animation.dart';
@@ -32,22 +34,19 @@ class _CommentCardState extends ConsumerState<CommentCard> {
   @override
   void initState() {
     super.initState();
-    final currentUserValue = ref.read(userProvider);
-
-    currentUserValue.whenData((currentUser) {
-      user = currentUser;
-    });
+    final currentUserDate = ref.read(currentUserProvider);
+    user = currentUserDate!;
   }
 
   void likeComment() async {
-    final result = await _commentController.likeComment(
-      widget.post.postId,
-      widget.comment.commentId,
-      user.userId,
-      widget.comment.likes,
-    );
+    final result = await ref.read(commentProvider.notifier).likeComment(
+          widget.post.postId,
+          widget.comment.commentId,
+          user.userId,
+          widget.comment.likes,
+        );
 
-    if (result != 'Success') {
+    if (result != null) {
       showSnackbar(context, result);
     }
   }

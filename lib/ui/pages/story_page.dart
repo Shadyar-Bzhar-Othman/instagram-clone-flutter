@@ -1,34 +1,26 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:instagramclone/core/controllers/story_controller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/models/story_model.dart';
 import 'package:instagramclone/core/models/user_model.dart';
-import 'package:instagramclone/core/services/story_service.dart';
+import 'package:instagramclone/core/providers/story_provider.dart';
 import 'package:instagramclone/ui/shared/widgets/story_bars.dart';
-import 'package:instagramclone/ui/shared/widgets/story_percent_indecator.dart';
 
-class StoryPage extends StatefulWidget {
+class StoryPage extends ConsumerStatefulWidget {
   const StoryPage({super.key, required this.user});
 
   final UserModel user;
 
   @override
-  State<StoryPage> createState() => _StoryPageState();
+  ConsumerState<StoryPage> createState() => _StoryPageState();
 }
 
-class _StoryPageState extends State<StoryPage> {
-  final StoryController _storyController = StoryController(
-    storyService: StoryService(firebaseFirestore: FirebaseFirestore.instance),
-  );
-
+class _StoryPageState extends ConsumerState<StoryPage> {
   late Timer _storyTimer;
   int currentStory = 0;
   List<StoryModel> _stories = [];
   List<double> _percents = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -38,14 +30,15 @@ class _StoryPageState extends State<StoryPage> {
   }
 
   void getStories() async {
-    setState(() {
-      _isLoading = true;
-    });
+    await ref
+        .read(storyProvider.notifier)
+        .getStories(widget.user.userId)
+        .whenComplete(() {
+      _stories = ref.read(storyProvider);
 
-    _stories = await _storyController.getStories(widget.user.userId);
-
-    _stories.forEach((story) {
-      _percents.add(0);
+      _stories.forEach((story) {
+        _percents.add(0);
+      });
     });
 
     setState(() {

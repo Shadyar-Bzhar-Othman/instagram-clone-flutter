@@ -21,9 +21,7 @@ class StoryModel {
     required this.isActive,
   });
 
-  factory StoryModel.fromJson(DocumentSnapshot documentSnapshot) {
-    final snapshotData = documentSnapshot.data() as Map<String, dynamic>;
-
+  factory StoryModel.fromJson(Map<String, dynamic> snapshotData) {
     return StoryModel(
       userId: snapshotData['userId'],
       username: snapshotData['username'],
@@ -33,21 +31,6 @@ class StoryModel {
       datePublished: snapshotData['datePublished'],
       viewers: snapshotData['viewers'],
       isActive: snapshotData['isActive'],
-    );
-  }
-
-  factory StoryModel.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
-    final snapshotData = snapshot.data() as Map<String, dynamic>;
-
-    return StoryModel(
-      userId: snapshotData['userId'],
-      username: snapshotData['username'],
-      profileURL: snapshotData['profileURL'],
-      storyId: snapshotData['storyId'],
-      imageURL: snapshotData['imageURL'],
-      datePublished: snapshotData['datePublished'],
-      viewers: List<String>.from(snapshotData['viewers'] ?? []),
-      isActive: snapshotData['isActive'] ?? false,
     );
   }
 

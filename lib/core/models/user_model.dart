@@ -21,9 +21,7 @@ class UserModel {
     required this.savedPost,
   });
 
-  factory UserModel.fromJson(DocumentSnapshot documentSnapshot) {
-    final snapshotData = documentSnapshot.data() as Map<String, dynamic>;
-
+  factory UserModel.fromJson(Map<String, dynamic> snapshotData) {
     return UserModel(
       userId: snapshotData['userId'],
       username: snapshotData['username'],
@@ -33,36 +31,6 @@ class UserModel {
       follower: snapshotData['follower'],
       following: snapshotData['following'],
       savedPost: snapshotData['savedPost'],
-    );
-  }
-
-  factory UserModel.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
-    final snapshotData = snapshot.data() as Map<String, dynamic>;
-
-    return UserModel(
-      userId: snapshotData['userId'],
-      username: snapshotData['username'],
-      profileImageURL: snapshotData['profileImageURL'],
-      email: snapshotData['email'],
-      bio: snapshotData['bio'],
-      follower: snapshotData['follower'],
-      following: snapshotData['following'],
-      savedPost: snapshotData['savedPost'],
-    );
-  }
-
-  factory UserModel.fromMap(Map<String, dynamic> documentSnapshot) {
-    final snapshotData = documentSnapshot;
-
-    return UserModel(
-      userId: snapshotData['userId'],
-      username: snapshotData['username'],
-      profileImageURL: snapshotData['profileImageURL'],
-      email: snapshotData['email'],
-      bio: snapshotData['bio'],
-      follower: snapshotData['follower'],
-      following: snapshotData['following'],
-      savedPost: snapshotData['savedPost'] ?? [],
     );
   }
 
@@ -75,6 +43,7 @@ class UserModel {
       'bio': bio,
       'follower': follower,
       'following': following,
+      'savedPost': savedPost,
     };
   }
 }

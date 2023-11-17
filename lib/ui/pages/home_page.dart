@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
+import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/add_post_page.dart';
 import 'package:instagramclone/ui/pages/feed_page.dart';
 import 'package:instagramclone/ui/pages/search_page.dart';
@@ -18,6 +21,8 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  late final UserController _userController;
+
   late UserModel currentUser;
 
   int _currentIndex = 0;
@@ -27,26 +32,33 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    _userController = UserController(
+      ref: ref,
+      userService: UserService(
+        firebaseAuth: FirebaseAuth.instance,
+        firebaseFirestore: FirebaseFirestore.instance,
+      ),
+    );
     getCurrentUser();
   }
 
   void getCurrentUser() async {
-    final currentUserValue = ref.read(userProvider);
-
-    currentUserValue.when(
-      data: (cUser) {
-        setState(() {
-          currentUser = cUser;
-          _isLoading = false;
-        });
-      },
-      error: (error, stackTrace) {},
-      loading: () {
-        setState(() {
-          _isLoading == true;
-        });
-      },
-    );
+    print(1);
+    setState(() {
+      _isLoading = true;
+    });
+    print(3);
+    await _userController.getCurrentUserDetail();
+    print(44);
+    final currentUserData = ref.read(currentUserProvider);
+    print(444);
+    print(currentUserData!);
+    currentUser = currentUserData!;
+    print(4);
+    setState(() {
+      _isLoading = false;
+    });
+    print(5);
   }
 
   void changePage(int index) {
@@ -73,6 +85,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print(2);
     return _isLoading
         ? Container()
         : Scaffold(

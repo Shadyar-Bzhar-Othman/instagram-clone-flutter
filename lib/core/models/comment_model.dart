@@ -19,9 +19,7 @@ class CommentModel {
     required this.likes,
   });
 
-  factory CommentModel.fromJson(DocumentSnapshot documentSnapshot) {
-    final snapshotData = documentSnapshot.data() as Map<String, dynamic>;
-
+  factory CommentModel.fromJson(Map<String, dynamic> snapshotData) {
     return CommentModel(
       userId: snapshotData['userId'],
       username: snapshotData['username'],

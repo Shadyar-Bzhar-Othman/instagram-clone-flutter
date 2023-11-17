@@ -1,19 +1,51 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instagramclone/core/controllers/user_controller.dart';
+import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/post_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
+import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/user_profile_page.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/utils/colors.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
 
   @override
-  State<SearchPage> createState() => _SearchPageState();
+  ConsumerState<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends ConsumerState<SearchPage> {
+  late final UserController _userController;
+
   final TextEditingController _usernameController = TextEditingController();
-  bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _userController = UserController(
+      ref: ref,
+      userService: UserService(
+        firebaseAuth: FirebaseAuth.instance,
+        firebaseFirestore: FirebaseFirestore.instance,
+      ),
+    );
+  }
+
+  void searchUser() async {
+    if (_usernameController.text.isNotEmpty) {
+      final String? result =
+          await _userController.searchUserByUsername(_usernameController.text);
+
+      if (result != null) {
+        showSnackbar(context, result);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -23,6 +55,8 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final allUserData = ref.watch(usersProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: backgroundColor,
@@ -47,62 +81,42 @@ class _SearchPageState extends State<SearchPage> {
           ),
           onEditingComplete: () {
             setState(() {
-              _isSearching = true;
+              searchUser();
             });
           },
         ),
       ),
-      body: _isSearching && _usernameController.text.isNotEmpty
-          ? FutureBuilder(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .where('username',
-                      isGreaterThanOrEqualTo: _usernameController.text)
-                  .get(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                final List<UserModel> data = snapshot.data!.docs
-                    .map((user) =>
-                        UserModel.fromMap(user.data() as Map<String, dynamic>))
-                    .toList();
-
-                return ListView.builder(
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UserProfilePage(
-                              user: data[index],
-                            ),
-                          ),
-                        );
-                      },
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            data[index].profileImageURL,
-                          ),
-                          radius: 16,
-                        ),
-                        title: Text(
-                          data[index].username,
+      body: _usernameController.text.isNotEmpty
+          ? ListView.builder(
+              itemCount: allUserData.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserProfilePage(
+                          user: allUserData[index],
                         ),
                       ),
                     );
                   },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        allUserData[index].profileImageURL,
+                      ),
+                      radius: 16,
+                    ),
+                    title: Text(
+                      allUserData[index].username,
+                    ),
+                  ),
                 );
               },
             )
           : FutureBuilder(
-              future: FirebaseFirestore.instance.collection('posts').get(),
+              future: ref.read(postProvider.notifier).getAllPost(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -110,9 +124,11 @@ class _SearchPageState extends State<SearchPage> {
                   );
                 }
 
+                List<PostModel> posts = ref.watch(postProvider);
+
                 return GridView.builder(
                   padding: const EdgeInsets.only(top: 5),
-                  itemCount: (snapshot.data! as dynamic).docs.length,
+                  itemCount: posts.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     mainAxisSpacing: 5,
@@ -121,7 +137,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   itemBuilder: (context, index) {
                     return Image.network(
-                      snapshot.data!.docs[index]['imageURL'],
+                      posts[index].imageURL,
                       fit: BoxFit.cover,
                     );
                   },

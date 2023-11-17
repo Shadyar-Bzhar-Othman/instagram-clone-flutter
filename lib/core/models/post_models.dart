@@ -21,39 +21,7 @@ class PostModel {
     required this.likes,
   });
 
-  factory PostModel.fromJson(DocumentSnapshot documentSnapshot) {
-    final snapshotData = documentSnapshot.data() as Map<String, dynamic>;
-
-    return PostModel(
-      userId: snapshotData['userId'],
-      username: snapshotData['username'],
-      profileURL: snapshotData['profileURL'],
-      postId: snapshotData['postId'],
-      imageURL: snapshotData['imageURL'],
-      description: snapshotData['description'],
-      datePublished: snapshotData['datePublished'],
-      likes: snapshotData['likes'],
-    );
-  }
-
-  factory PostModel.fromQueryDocumentSnapshot(QueryDocumentSnapshot snapshot) {
-    final snapshotData = snapshot.data() as Map<String, dynamic>;
-
-    return PostModel(
-      userId: snapshotData['userId'],
-      username: snapshotData['username'],
-      profileURL: snapshotData['profileURL'],
-      postId: snapshotData['postId'],
-      imageURL: snapshotData['imageURL'],
-      description: snapshotData['description'],
-      datePublished: snapshotData['datePublished'],
-      likes: snapshotData['likes'],
-    );
-  }
-
-  factory PostModel.fromMap(Map<String, dynamic> snapshot) {
-    final snapshotData = snapshot;
-
+  factory PostModel.fromJson(Map<String, dynamic> snapshotData) {
     return PostModel(
       userId: snapshotData['userId'],
       username: snapshotData['username'],

@@ -6,6 +6,8 @@ import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/comment_model.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/comment_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/core/services/comment_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/comment_card.dart';
@@ -32,25 +34,22 @@ class _CommentPageState extends ConsumerState<CommentPage> {
   @override
   void initState() {
     super.initState();
-    final currentUserValue = ref.read(userProvider);
-
-    currentUserValue.whenData((currentUser) {
-      user = currentUser;
-    });
+    final currentUserData = ref.read(currentUserProvider);
+    user = currentUserData!;
   }
 
   void addComment() async {
     final String text = _commentTextController.text;
 
-    final result = await _commentController.addComment(
-      user.userId,
-      user.username,
-      user.profileImageURL,
-      widget.post.postId,
-      text,
-    );
+    final result = await ref.read(commentProvider.notifier).addComment(
+          user.userId,
+          user.username,
+          user.profileImageURL,
+          widget.post.postId,
+          text,
+        );
 
-    if (result != 'Success') {
+    if (result != null) {
       showSnackbar(context, result);
     }
 
@@ -58,10 +57,11 @@ class _CommentPageState extends ConsumerState<CommentPage> {
   }
 
   void deleteComment(CommentModel comment) async {
-    final result = await _commentController.deleteComment(
-        widget.post.postId, comment.commentId);
+    final result = await ref
+        .read(commentProvider.notifier)
+        .deleteComment(widget.post.postId, comment.commentId);
 
-    if (result != 'Success') {
+    if (result != null) {
       showSnackbar(context, result);
     }
   }
@@ -82,13 +82,10 @@ class _CommentPageState extends ConsumerState<CommentPage> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('posts')
-                  .doc(widget.post.postId)
-                  .collection('comments')
-                  .orderBy('datePublished', descending: true)
-                  .snapshots(),
+            child: FutureBuilder(
+              future: ref
+                  .read(commentProvider.notifier)
+                  .getPostComment(widget.post.postId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -96,20 +93,18 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                   );
                 }
 
-                if (!snapshot.hasData) {
+                final List<CommentModel> comments = ref.watch(commentProvider);
+
+                if (comments.isEmpty) {
                   return const Center(
                     child: Text('There\'s no comment for this post...'),
                   );
                 }
 
-                final QuerySnapshot snapshotData = snapshot.data!;
-
                 return ListView.builder(
-                  itemCount: snapshotData.docs.length,
+                  itemCount: comments.length,
                   itemBuilder: (context, index) {
-                    final comment = CommentModel.fromJson(
-                      snapshotData.docs[index],
-                    );
+                    final comment = comments[index];
                     return user.userId == comment.userId
                         ? Dismissible(
                             onDismissed: (direction) {

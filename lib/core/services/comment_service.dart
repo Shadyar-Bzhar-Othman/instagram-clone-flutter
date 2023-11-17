@@ -9,9 +9,31 @@ class CommentService {
 
   final FirebaseFirestore _firebaseFirestore;
 
-  Future<String> addComment(String userId, String username, String profileURL,
-      String postId, String text) async {
-    String result = '';
+  Future<List<CommentModel>> getPostComment(String postId) async {
+    List<CommentModel> comments = [];
+
+    try {
+      final querySnapshot = await _firebaseFirestore
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .get();
+
+      comments = querySnapshot.docs
+          .map((user) => CommentModel.fromJson(user.data()))
+          .toList();
+    } catch (ex) {
+      comments = [];
+      rethrow;
+    }
+
+    return comments;
+  }
+
+  Future<List<CommentModel>> addComment(String userId, String username,
+      String profileURL, String postId, String text) async {
+    List<CommentModel> comments = [];
+
     try {
       String commentId = const Uuid().v1();
 
@@ -32,16 +54,19 @@ class CommentService {
           .doc(commentId)
           .set(comment.toJson());
 
-      result = 'Success';
+      comments = await getPostComment(postId);
     } catch (ex) {
-      result = ex.toString();
+      comments = [];
+      rethrow;
     }
 
-    return result;
+    return comments;
   }
 
-  Future<String> deleteComment(String postId, String commentId) async {
-    String result = '';
+  Future<List<CommentModel>> deleteComment(
+      String postId, String commentId) async {
+    List<CommentModel> comments = [];
+
     try {
       await _firebaseFirestore
           .collection('posts')
@@ -50,17 +75,19 @@ class CommentService {
           .doc(commentId)
           .delete();
 
-      result = 'Success';
+      comments = await getPostComment(postId);
     } catch (ex) {
-      result = ex.toString();
+      comments = [];
+      rethrow;
     }
 
-    return result;
+    return comments;
   }
 
-  Future<String> likeComment(
+  Future<List<CommentModel>> likeComment(
       String postId, String commentId, String userId, List likes) async {
-    String result = '';
+    List<CommentModel> comments = [];
+
     try {
       if (likes.contains(userId)) {
         await _firebaseFirestore
@@ -82,11 +109,12 @@ class CommentService {
         });
       }
 
-      result = 'Success';
+      comments = await getPostComment(postId);
     } catch (ex) {
-      result = ex.toString();
+      comments = [];
+      rethrow;
     }
 
-    return result;
+    return comments;
   }
 }

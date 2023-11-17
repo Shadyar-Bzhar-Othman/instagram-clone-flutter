@@ -8,6 +8,10 @@ import 'package:instagramclone/core/controllers/story_controller.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/post_provider.dart';
+import 'package:instagramclone/core/providers/story_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
+import 'package:instagramclone/core/providers/user_story_provider.dart';
 import 'package:instagramclone/core/services/story_service.dart';
 import 'package:instagramclone/ui/pages/story_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
@@ -24,33 +28,16 @@ class FeedPage extends ConsumerStatefulWidget {
 }
 
 class _FeedPageState extends ConsumerState<FeedPage> {
-  final StoryController _storyController = StoryController(
-    storyService: StoryService(firebaseFirestore: FirebaseFirestore.instance),
-  );
-
   late UserModel user;
-  bool _isLoading = false;
   Uint8List? _selectedImage;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
-  }
 
-  void getCurrentUser() async {
-    final currentUserValue = ref.read(userProvider);
-
-    currentUserValue.when(
-      data: (currentUser) {
-        user = currentUser;
-        _isLoading = false;
-      },
-      error: (error, stackTrace) {},
-      loading: () {
-        _isLoading == true;
-      },
-    );
+    final currentUserData = ref.read(currentUserProvider);
+    user = currentUserData!;
   }
 
   Future<void> selectImage() async {
@@ -66,10 +53,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   void addStory() async {
     await selectImage();
     if (_selectedImage != null) {
-      final result = await _storyController.addStory(
+      final result = await ref.read(storyProvider.notifier).addStory(
           user.userId, user.username, user.profileImageURL, _selectedImage);
 
-      if (result != 'Success') {
+      if (result != null) {
         showSnackbar(context, result);
         return;
       }
@@ -103,8 +90,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                   height: 110,
                   padding: const EdgeInsets.all(6),
                   child: FutureBuilder(
-                      future:
-                          _storyController.getUserWithActiveStory(user.userId),
+                      future: ref
+                          .read(userStoryProvider.notifier)
+                          .getUserWithActiveStory(user.userId),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -113,7 +101,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           );
                         }
 
-                        final List<UserModel> data = snapshot.data!;
+                        final List<UserModel> data =
+                            ref.watch(userStoryProvider);
 
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -141,11 +130,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       }),
                 ),
                 Expanded(
-                  child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection('posts')
-                        .orderBy('datePublished', descending: true)
-                        .snapshots(),
+                  child: FutureBuilder(
+                    future: ref.read(postProvider.notifier).getAllPost(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -153,15 +139,13 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         );
                       }
 
-                      final QuerySnapshot snapshotData = snapshot.data!;
+                      final List<PostModel> posts = ref.watch(postProvider);
 
                       return ListView.builder(
-                        itemCount: snapshotData.docs.length,
+                        itemCount: posts.length,
                         itemBuilder: (context, index) {
                           return PostCard(
-                            post: PostModel.fromJson(
-                              snapshotData.docs[index],
-                            ),
+                            post: posts[index],
                           );
                         },
                       );

@@ -1,34 +1,29 @@
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:instagramclone/core/controllers/auth_controller.dart';
 import 'package:instagramclone/core/controllers/user_controller.dart';
+import 'package:instagramclone/core/services/auth_service.dart';
 import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
-import 'package:instagramclone/utils/helpers.dart';
 import 'package:instagramclone/utils/validators.dart';
 
-class SignupPage extends StatefulWidget {
+class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  ConsumerState<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
-  final UserController _userController = UserController(
-    UserService(
-      firebaseAuth: FirebaseAuth.instance,
-      firebaseFirestore: FirebaseFirestore.instance,
-    ),
-  );
+class _SignupPageState extends ConsumerState<SignupPage> {
+  late final AuthController _authController;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -37,6 +32,18 @@ class _SignupPageState extends State<SignupPage> {
   String _password = '';
   Uint8List? _profileImage;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authController = AuthController(
+      ref: ref,
+      authService: AuthService(
+        firebaseAuth: FirebaseAuth.instance,
+        firebaseFirestore: FirebaseFirestore.instance,
+      ),
+    );
+  }
 
   void signup() async {
     bool isValid = _formKey.currentState!.validate();
@@ -51,14 +58,14 @@ class _SignupPageState extends State<SignupPage> {
 
     _formKey.currentState!.save();
 
-    String result = await _userController.signup(
+    String? result = await _authController.signup(
         _email, _password, _username, _profileImage);
 
     setState(() {
       _isLoading = false;
     });
 
-    if (result != 'Success') {
+    if (result != null) {
       showSnackbar(context, result);
       return;
     }
