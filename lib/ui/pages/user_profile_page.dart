@@ -5,6 +5,8 @@ import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/ui/pages/post_page.dart';
+import 'package:instagramclone/ui/pages/update_profile_page.dart';
+import 'package:instagramclone/ui/shared/dialogs/custom_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/profile_information.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
@@ -140,7 +142,46 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                                       horizontal: 60),
                                   child: SharedButton(
                                     label: 'Edit Profile',
-                                    onPress: () {},
+                                    onPress: () {
+                                      customDialog(
+                                        context,
+                                        'User Settings',
+                                        [
+                                          {
+                                            'icon': Icons.update_rounded,
+                                            'label': 'Update Profile',
+                                            'function': () {
+                                              // Navigator.pop(context);
+                                              Future.delayed(
+                                                const Duration(
+                                                    microseconds: 250),
+                                                () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          UpdateProfilePage(
+                                                        user: user,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          },
+                                          {
+                                            'icon': Icons.bookmark,
+                                            'label': 'Saved Post',
+                                            'function': () {},
+                                          },
+                                          {
+                                            'icon': Icons.logout_rounded,
+                                            'label': 'Signout',
+                                            'function': () {},
+                                          },
+                                        ],
+                                      );
+                                    },
                                     isLoading: false,
                                     color: secondaryColor,
                                   ),

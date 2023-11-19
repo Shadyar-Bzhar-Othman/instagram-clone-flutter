@@ -5,6 +5,14 @@ String? validateUsername(String value) {
   return null;
 }
 
+String? validateBio(String value) {
+  if (!value.trim().isNotEmpty ||
+      value.trim().length < 1 && value.trim().length > 180) {
+    return 'Please enter a valid bio more than 1 letter and less than 180 letter';
+  }
+  return null;
+}
+
 String? validateEmail(String value) {
   if (!value.trim().isNotEmpty || !value.contains('@')) {
     return 'Please enter a valid email address';

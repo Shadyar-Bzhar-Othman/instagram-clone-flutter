@@ -43,11 +43,6 @@ class InstagramClone extends ConsumerWidget {
 
           // FirebaseAuth.instance.signOut();
           if (snapshot.hasData) {
-            if (snapshot.data != null) {
-              print('1');
-              ref.read(currentUserProvider.notifier).getCurrentUserDetail();
-            }
-
             return const HomePage();
           }
 

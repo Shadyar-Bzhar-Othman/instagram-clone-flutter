@@ -20,15 +20,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   int _currentIndex = 0;
   Widget content = const FeedPage();
-  final bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
-    final currentUserData = ref.read(currentUserProvider);
-
-    currentUser = currentUserData!;
   }
 
   void changePage(int index) {
@@ -55,9 +50,18 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? Container()
-        : Scaffold(
+    return FutureBuilder(
+        future: ref.read(currentUserProvider.notifier).getCurrentUserDetail(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          final currentUserData = ref.read(currentUserProvider);
+
+          currentUser = currentUserData!;
+          return Scaffold(
             body: content,
             bottomNavigationBar: Theme(
               data: Theme.of(context).copyWith(canvasColor: backgroundColor),
@@ -90,9 +94,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     icon: CircleAvatar(
                       backgroundColor: Colors.white,
                       backgroundImage: NetworkImage(
-                        _isLoading
-                            ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
-                            : currentUser.profileImageURL,
+                        currentUser.profileImageURL,
                       ),
                       radius: 12,
                     ),
@@ -102,5 +104,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
           );
+        });
   }
 }

@@ -111,18 +111,20 @@ class UserService {
 
     try {
       if (profileImage == null) {
-        throw Exception('Please provide an image');
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'username': username,
+          'bio': bio,
+        });
+      } else {
+        String profileImageURL = await uploadFileToFirebaseStorage(
+            'profilePictures', profileImage, false);
+
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'username': username,
+          'profileImageURL': profileImageURL,
+          'bio': bio,
+        });
       }
-
-      String profileImageURL = await uploadFileToFirebaseStorage(
-          'profilePictures', profileImage, false);
-
-      await _firebaseFirestore.collection('users').doc(userId).update({
-        'username': username,
-        'profileImageURL': profileImageURL,
-        'bio': bio,
-      });
-
       user = await getUserDetailById(userId);
     } catch (ex) {
       user = null;
