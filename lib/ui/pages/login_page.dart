@@ -1,10 +1,10 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/controllers/auth_controller.dart';
+import 'package:instagramclone/core/providers/auth_provider.dart';
 import 'package:instagramclone/core/services/auth_service.dart';
 import 'package:instagramclone/ui/pages/signup_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
@@ -21,20 +21,11 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  late final AuthController _authController;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _authController = AuthController(
-      ref: ref,
-      authService: AuthService(
-        firebaseAuth: FirebaseAuth.instance,
-        firebaseFirestore: FirebaseFirestore.instance,
-      ),
-    );
   }
 
   String _email = '';
@@ -54,7 +45,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     _formKey.currentState!.save();
 
-    String? result = await _authController.login(_email, _password);
+    String? result =
+        await ref.read(authProvider.notifier).login(_email, _password);
 
     if (result != null) {
       showSnackbar(context, result);

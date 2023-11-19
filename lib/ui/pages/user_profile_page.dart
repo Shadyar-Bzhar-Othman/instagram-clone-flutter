@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
+import 'package:instagramclone/core/providers/auth_provider.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/ui/pages/post_page.dart';
@@ -61,6 +62,14 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     final String? result = await ref
         .read(specificUserProvider.notifier)
         .followUser(user.userId, currentUser.userId, user.follower);
+
+    if (result != null) {
+      showSnackbar(context, result);
+    }
+  }
+
+  void signOut() async {
+    final String? result = await ref.read(authProvider.notifier).signOut();
 
     if (result != null) {
       showSnackbar(context, result);
@@ -194,7 +203,9 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                                           {
                                             'icon': Icons.logout_rounded,
                                             'label': 'Signout',
-                                            'function': () {},
+                                            'function': () {
+                                              signOut();
+                                            },
                                           },
                                         ],
                                       );

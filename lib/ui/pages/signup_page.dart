@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/controllers/auth_controller.dart';
+import 'package:instagramclone/core/providers/auth_provider.dart';
 import 'package:instagramclone/core/services/auth_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
@@ -21,8 +22,6 @@ class SignupPage extends ConsumerStatefulWidget {
 }
 
 class _SignupPageState extends ConsumerState<SignupPage> {
-  late final AuthController _authController;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String _username = '';
@@ -34,13 +33,6 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   @override
   void initState() {
     super.initState();
-    _authController = AuthController(
-      ref: ref,
-      authService: AuthService(
-        firebaseAuth: FirebaseAuth.instance,
-        firebaseFirestore: FirebaseFirestore.instance,
-      ),
-    );
   }
 
   void signup() async {
@@ -56,8 +48,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
     _formKey.currentState!.save();
 
-    String? result = await _authController.signup(
-        _email, _password, _username, _profileImage);
+    String? result = await ref
+        .read(authProvider.notifier)
+        .signup(_email, _password, _username, _profileImage);
 
     setState(() {
       _isLoading = false;
@@ -77,7 +70,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     setState(() {
       _profileImage = selectedImage;
     });
-    }
+  }
 
   @override
   Widget build(BuildContext context) {

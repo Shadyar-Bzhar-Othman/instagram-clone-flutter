@@ -4,14 +4,11 @@ import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/core/services/auth_service.dart';
 
-class AuthController {
-  AuthController({
-    required WidgetRef ref,
-    required AuthService authService,
-  })  : _ref = ref,
-        _authService = authService;
+class AuthController extends StateNotifier<UserModel?> {
+  AuthController({required AuthService authService})
+      : _authService = authService,
+        super(null);
 
-  final WidgetRef _ref;
   final AuthService _authService;
 
   Future<String?> login(String email, String password) async {
@@ -20,7 +17,7 @@ class AuthController {
     try {
       UserModel user = await _authService.login(email, password);
 
-      _ref.read(currentUserProvider.notifier).state = user;
+      state = user;
 
       result = null;
     } catch (ex) {
@@ -38,7 +35,7 @@ class AuthController {
       UserModel user =
           await _authService.signup(email, password, username, profileImage);
 
-      _ref.read(currentUserProvider.notifier).state = user;
+      state = user;
 
       result = null;
     } catch (ex) {
@@ -54,7 +51,7 @@ class AuthController {
     try {
       UserModel? user = await _authService.signOut();
 
-      _ref.read(currentUserProvider.notifier).state = user;
+      state = user;
 
       result = null;
     } catch (ex) {
