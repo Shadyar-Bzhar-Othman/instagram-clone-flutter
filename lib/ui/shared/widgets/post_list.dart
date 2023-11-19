@@ -6,9 +6,10 @@ import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/ui/shared/widgets/post_card.dart';
 
 class PostList extends ConsumerStatefulWidget {
-  const PostList({super.key, required this.user});
+  const PostList({super.key, required this.user, required this.isSavedPost});
 
   final UserModel user;
+  final bool isSavedPost;
 
   @override
   ConsumerState<PostList> createState() => _PostListState();
@@ -20,8 +21,13 @@ class _PostListState extends ConsumerState<PostList> {
   @override
   void initState() {
     super.initState();
-    userPostsFuture =
-        ref.read(postProvider.notifier).getUserPost(widget.user.userId);
+    if (widget.isSavedPost) {
+      userPostsFuture =
+          ref.read(postProvider.notifier).getUserSavedPost(widget.user.userId);
+    } else {
+      userPostsFuture =
+          ref.read(postProvider.notifier).getUserPost(widget.user.userId);
+    }
   }
 
   @override
@@ -38,8 +44,13 @@ class _PostListState extends ConsumerState<PostList> {
             child: Text('Error: ${snapshot.error}'),
           );
         }
+        List<PostModel> posts = [];
 
-        final List<PostModel> posts = ref.watch(postProvider) ?? [];
+        if (widget.isSavedPost) {
+          posts = ref.read(postProvider) ?? [];
+        } else {
+          posts = ref.watch(postProvider) ?? [];
+        }
 
         if (posts.isEmpty) {
           return const Center(

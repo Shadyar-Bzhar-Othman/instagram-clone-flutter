@@ -42,6 +42,22 @@ class PostController extends StateNotifier<List<PostModel>> {
     return result;
   }
 
+  Future<String?> getUserSavedPost(String userId) async {
+    String? result;
+
+    try {
+      List<PostModel> posts = await _postService.getUserSavedPost(userId);
+
+      // Update the state to get user saved posts, because It'll be complex if I separate it
+      state = posts;
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
+
+    return result;
+  }
+
   Future<String?> addPost(String userId, String username, String profileURL,
       Uint8List? image, String description) async {
     String? result;

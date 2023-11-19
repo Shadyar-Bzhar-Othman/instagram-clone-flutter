@@ -5,6 +5,7 @@ import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/ui/pages/post_page.dart';
+import 'package:instagramclone/ui/pages/saved_post_page.dart';
 import 'package:instagramclone/ui/pages/update_profile_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/custom_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
@@ -172,7 +173,23 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                                           {
                                             'icon': Icons.bookmark,
                                             'label': 'Saved Post',
-                                            'function': () {},
+                                            'function': () {
+                                              Future.delayed(
+                                                const Duration(
+                                                    microseconds: 250),
+                                                () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          SavedPostPage(
+                                                        user: user,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
                                           },
                                           {
                                             'icon': Icons.logout_rounded,

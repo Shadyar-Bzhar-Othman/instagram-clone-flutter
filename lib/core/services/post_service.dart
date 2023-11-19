@@ -50,6 +50,33 @@ class PostService {
     return posts;
   }
 
+  Future<List<PostModel>> getUserSavedPost(String userId) async {
+    List<PostModel> posts = [];
+
+    try {
+      List postIdList = [];
+
+      final querySnapshotPostId =
+          await _firebaseFirestore.collection('users').doc(userId).get();
+
+      postIdList = querySnapshotPostId.data()!['savedPost'];
+
+      for (var postId in postIdList) {
+        final querySnapshot =
+            await _firebaseFirestore.collection('posts').doc(postId).get();
+
+        PostModel post = PostModel.fromJson(querySnapshot.data()!);
+
+        posts.add(post);
+      }
+    } catch (ex) {
+      posts = [];
+      rethrow;
+    }
+
+    return posts;
+  }
+
   Future<List<PostModel>> addPost(String userId, String username,
       String profileURL, Uint8List? image, String description) async {
     List<PostModel> posts = [];

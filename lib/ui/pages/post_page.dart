@@ -5,9 +5,10 @@ import 'package:instagramclone/ui/shared/widgets/post_list.dart';
 import 'package:instagramclone/utils/colors.dart';
 
 class PostPage extends StatefulWidget {
-  const PostPage({super.key, this.user});
+  const PostPage({super.key, this.user, this.isSavedPost});
 
   final UserModel? user;
+  final bool? isSavedPost;
 
   @override
   State<PostPage> createState() => _PostPageState();
@@ -23,7 +24,12 @@ class _PostPageState extends State<PostPage> {
       ),
       body: widget.user == null
           ? const FeedPostList()
-          : PostList(user: widget.user!),
+          : widget.isSavedPost == null
+              ? PostList(user: widget.user!, isSavedPost: false)
+              : PostList(
+                  user: widget.user!,
+                  isSavedPost: widget.isSavedPost!,
+                ),
     );
   }
 }
