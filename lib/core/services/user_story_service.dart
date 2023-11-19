@@ -32,7 +32,7 @@ class UserStoryService {
             .where((story) => story['isActive'] == true)
             .toList();
 
-        if (activeStories.length > 0) {
+        if (activeStories.isNotEmpty) {
           activeUsersWithStories.add(
               await _firebaseFirestore.collection('users').doc(userId).get());
         }

@@ -73,11 +73,11 @@ class UserService {
   }
 
   Future<UserModel> followUser(
-      String userId, String userFollowId, List following) async {
+      String userFollowId, String userId, List follower) async {
     UserModel? user;
 
     try {
-      if (following.contains(userFollowId)) {
+      if (follower.contains(userId)) {
         await _firebaseFirestore.collection('users').doc(userId).update({
           'following': FieldValue.arrayRemove([userFollowId]),
         });
@@ -122,30 +122,6 @@ class UserService {
         'profileImageURL': profileImageURL,
         'bio': bio,
       });
-
-      user = await getUserDetailById(userId);
-    } catch (ex) {
-      user = null;
-      rethrow;
-    }
-
-    return user;
-  }
-
-  Future<UserModel> savePost(
-      String userId, String postId, List savedPost) async {
-    UserModel? user;
-
-    try {
-      if (savedPost.contains(postId)) {
-        await _firebaseFirestore.collection('users').doc(userId).update({
-          'savedPost': FieldValue.arrayRemove([postId]),
-        });
-      } else {
-        await _firebaseFirestore.collection('users').doc(userId).update({
-          'savedPost': FieldValue.arrayUnion([postId]),
-        });
-      }
 
       user = await getUserDetailById(userId);
     } catch (ex) {

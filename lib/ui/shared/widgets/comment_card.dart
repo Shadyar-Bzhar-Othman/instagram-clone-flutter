@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/controllers/comment_controller.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/comment_model.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';

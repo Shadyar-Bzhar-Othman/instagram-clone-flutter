@@ -19,7 +19,7 @@ class _StoryPageState extends ConsumerState<StoryPage> {
   late Timer _storyTimer;
   int currentStory = 0;
   List<StoryModel> _stories = [];
-  List<double> _percents = [];
+  final List<double> _percents = [];
   bool _isLoading = true;
 
   @override
@@ -36,9 +36,9 @@ class _StoryPageState extends ConsumerState<StoryPage> {
         .whenComplete(() {
       _stories = ref.read(storyProvider);
 
-      _stories.forEach((story) {
+      for (var story in _stories) {
         _percents.add(0);
-      });
+      }
     });
 
     setState(() {
@@ -49,7 +49,7 @@ class _StoryPageState extends ConsumerState<StoryPage> {
   }
 
   void startWatching() {
-    _storyTimer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    _storyTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       setState(() {
         if (currentStory < _stories.length) {
           if (_percents[currentStory] <= 1) {
@@ -115,7 +115,7 @@ class _StoryPageState extends ConsumerState<StoryPage> {
               onTapDown: onTap,
               child: Stack(
                 children: [
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height: double.infinity,
                     child: Image.network(

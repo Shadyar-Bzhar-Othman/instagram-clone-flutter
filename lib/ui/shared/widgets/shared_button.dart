@@ -26,11 +26,11 @@ class SharedButton extends StatelessWidget {
         ),
       ),
       child: isLoading
-          ? Center(
-              child: Container(
+          ? const Center(
+              child: SizedBox(
                 width: 16,
                 height: 16,
-                child: const CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   color: primaryColor,
                 ),
               ),

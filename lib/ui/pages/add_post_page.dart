@@ -1,19 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:instagramclone/core/controllers/post_controller.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
-import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
-import 'package:instagramclone/core/services/post_service.dart';
-import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/utils/colors.dart';
-import 'package:instagramclone/utils/helpers.dart';
 
 class AddPostPage extends ConsumerStatefulWidget {
   const AddPostPage({super.key, required this.changePage});
@@ -32,12 +24,10 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
   void selectImage() async {
     final selectedImage = await showImagePickerDialog(context);
 
-    if (selectedImage != null) {
-      setState(() {
-        _selectedImage = selectedImage;
-      });
+    setState(() {
+      _selectedImage = selectedImage;
+    });
     }
-  }
 
   void post() async {
     setState(() {
@@ -105,7 +95,7 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    SizedBox(
                       width: 80,
                       height: 100,
                       child: Image.memory(

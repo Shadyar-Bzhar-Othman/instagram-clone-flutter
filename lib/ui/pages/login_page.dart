@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/controllers/auth_controller.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/services/auth_service.dart';
-import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/signup_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
@@ -58,8 +55,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     _formKey.currentState!.save();
 
     String? result = await _authController.login(_email, _password);
-
-    print(result);
 
     if (result != null) {
       showSnackbar(context, result);
@@ -136,7 +131,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             const SizedBox(
               height: 20,
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
               child: SharedButton(
                 label: 'Login',

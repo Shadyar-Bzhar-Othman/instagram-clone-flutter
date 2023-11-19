@@ -6,13 +6,13 @@ import 'package:uuid/uuid.dart';
 
 Future<String> uploadFileToFirebaseStorage(
     String folderName, Uint8List? file, bool isPost) async {
-  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
-  Reference ref = _firebaseStorage
+  Reference ref = firebaseStorage
       .ref()
       .child(folderName)
-      .child(_firebaseAuth.currentUser!.uid);
+      .child(firebaseAuth.currentUser!.uid);
 
   if (isPost) {
     String postId = const Uuid().v1();
@@ -34,4 +34,5 @@ Future<Uint8List?> pickImage(ImageSource source) async {
   if (selectedImage != null) {
     return selectedImage.readAsBytes();
   }
+  return null;
 }

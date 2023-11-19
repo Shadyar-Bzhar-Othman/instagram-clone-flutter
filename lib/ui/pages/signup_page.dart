@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/controllers/auth_controller.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/services/auth_service.dart';
-import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
@@ -76,12 +74,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   Future<void> pickProfileImage() async {
     Uint8List? selectedImage = await showImagePickerDialog(context);
 
-    if (selectedImage != null) {
-      setState(() {
-        _profileImage = selectedImage;
-      });
+    setState(() {
+      _profileImage = selectedImage;
+    });
     }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +171,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             const SizedBox(
               height: 20,
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
               child: SharedButton(
                 label: 'Signup',

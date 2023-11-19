@@ -1,16 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:instagramclone/core/controllers/post_controller.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
-import 'package:instagramclone/core/services/post_service.dart';
-import 'package:instagramclone/core/services/user_service.dart';
 import 'package:instagramclone/ui/pages/comment_page.dart';
+import 'package:instagramclone/ui/shared/dialogs/custom_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/like_animation.dart';
 import 'package:instagramclone/utils/colors.dart';
@@ -26,28 +21,24 @@ class PostCard extends ConsumerStatefulWidget {
 }
 
 class _PostCardState extends ConsumerState<PostCard> {
-  late final UserController _userController;
-
-  final PostController _postController = PostController(
-    postService: PostService(firebaseFirestore: FirebaseFirestore.instance),
-  );
-
   late UserModel user;
   bool isLikeAnimating = false;
 
   @override
   void initState() {
     super.initState();
-    _userController = UserController(
-      ref: ref,
-      userService: UserService(
-        firebaseAuth: FirebaseAuth.instance,
-        firebaseFirestore: FirebaseFirestore.instance,
-      ),
-    );
 
     final currentUserData = ref.read(currentUserProvider);
     user = currentUserData!;
+  }
+
+  void deletePost() async {
+    final result =
+        await ref.read(postProvider.notifier).deletePost(widget.post.postId);
+
+    if (result != null) {
+      showSnackbar(context, result);
+    }
   }
 
   void likePost() async {
@@ -61,9 +52,9 @@ class _PostCardState extends ConsumerState<PostCard> {
   }
 
   void savePost() async {
-    // Not real time update
-    final String? result = await _userController.savePost(
-        user.userId, widget.post.postId, user.savedPost);
+    final String? result = await ref
+        .read(postProvider.notifier)
+        .savePost(user.userId, widget.post.postId, user.savedPost);
 
     if (result != null) {
       showSnackbar(context, result);
@@ -101,7 +92,21 @@ class _PostCardState extends ConsumerState<PostCard> {
                 ),
                 widget.post.userId == user.userId
                     ? IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          customDialog(
+                            context,
+                            'Post Settings',
+                            [
+                              {
+                                'icon': Icons.delete,
+                                'label': 'Delete',
+                                'function': () {
+                                  deletePost();
+                                },
+                              },
+                            ],
+                          );
+                        },
                         icon: const Icon(Icons.more_horiz),
                       )
                     : Container(),
@@ -205,7 +210,7 @@ class _PostCardState extends ConsumerState<PostCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                widget.post.likes.length != 0
+                widget.post.likes.isNotEmpty
                     ? Text(
                         '${widget.post.likes.length} likes',
                       )
@@ -228,7 +233,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 ),
                 GestureDetector(
                   onTap: () {},
-                  child: Text('View all 22 comments'),
+                  child: const Text('View all 22 comments'),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 4),

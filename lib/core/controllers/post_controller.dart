@@ -86,4 +86,19 @@ class PostController extends StateNotifier<List<PostModel>> {
 
     return result;
   }
+
+  Future<String?> savePost(String userId, String postId, List savedPost) async {
+    String? result;
+
+    try {
+      List<PostModel> posts =
+          await _postService.savePost(userId, postId, savedPost);
+      state = posts;
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
+
+    return result;
+  }
 }

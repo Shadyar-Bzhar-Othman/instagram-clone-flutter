@@ -1,13 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
-import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
-import 'package:instagramclone/core/services/user_service.dart';
+import 'package:instagramclone/ui/pages/post_page.dart';
 import 'package:instagramclone/ui/pages/user_profile_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/utils/colors.dart';
@@ -20,26 +16,18 @@ class SearchPage extends ConsumerStatefulWidget {
 }
 
 class _SearchPageState extends ConsumerState<SearchPage> {
-  late final UserController _userController;
-
   final TextEditingController _usernameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _userController = UserController(
-      ref: ref,
-      userService: UserService(
-        firebaseAuth: FirebaseAuth.instance,
-        firebaseFirestore: FirebaseFirestore.instance,
-      ),
-    );
   }
 
   void searchUser() async {
     if (_usernameController.text.isNotEmpty) {
-      final String? result =
-          await _userController.searchUserByUsername(_usernameController.text);
+      final String? result = await ref
+          .read(usersProvider.notifier)
+          .searchUserByUsername(_usernameController.text);
 
       if (result != null) {
         showSnackbar(context, result);
@@ -136,9 +124,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     childAspectRatio: 1,
                   ),
                   itemBuilder: (context, index) {
-                    return Image.network(
-                      posts[index].imageURL,
-                      fit: BoxFit.cover,
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PostPage(),
+                          ),
+                        );
+                      },
+                      child: Image.network(
+                        posts[index].imageURL,
+                        fit: BoxFit.cover,
+                      ),
                     );
                   },
                 );

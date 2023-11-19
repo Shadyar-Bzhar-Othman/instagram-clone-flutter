@@ -1,13 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:instagramclone/core/controllers/user_controller.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
-import 'package:instagramclone/core/services/user_service.dart';
+import 'package:instagramclone/ui/pages/post_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/profile_information.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
@@ -24,168 +21,195 @@ class UserProfilePage extends ConsumerStatefulWidget {
 }
 
 class _UserProfilePageState extends ConsumerState<UserProfilePage> {
-  late final UserController _userController;
-
+  late UserModel user;
   late UserModel currentUser;
   bool _isFollowing = false;
   int postNumber = 0;
   int follower = 0;
   int following = 0;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
 
-    _userController = UserController(
-      ref: ref,
-      userService: UserService(
-        firebaseAuth: FirebaseAuth.instance,
-        firebaseFirestore: FirebaseFirestore.instance,
-      ),
-    );
+    getData();
+  }
 
+  void getData() async {
     final currentUserData = ref.read(currentUserProvider);
     currentUser = currentUserData!;
 
-    _isFollowing = widget.user.follower.contains(currentUser.userId);
-    follower = widget.user.follower.length;
-    following = widget.user.following.length;
+    await ref
+        .read(specificUserProvider.notifier)
+        .getUserDetailById(widget.user.userId);
+
+    final userData = ref.read(specificUserProvider);
+    user = userData!;
+
+    await ref.read(postProvider.notifier).getUserPost(user.userId);
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void followUser() async {
-    final String? result = await _userController.followUser(
-        currentUser.userId, widget.user.userId, currentUser.following);
+    final String? result = await ref
+        .read(specificUserProvider.notifier)
+        .followUser(user.userId, currentUser.userId, user.follower);
 
     if (result != null) {
       showSnackbar(context, result);
     }
-
-    if (_isFollowing) {
-      _isFollowing = false;
-      follower--;
-    } else {
-      _isFollowing = true;
-      follower++;
-    }
-
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isSameUser = widget.user.userId == currentUser.userId;
+    bool isSameUser = false;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: backgroundColor,
-        title: Text(
-          widget.user.username,
-        ),
-      ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              StoryCircle(
-                isMine: false,
-                user: widget.user,
-                isActive: true,
-                onPress: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => StoryPage(
-                  //       user: widget.user,
-                  //     ),
-                  //   ),
-                  // );
-                },
+    if (!_isLoading) {
+      final userData = ref.watch(specificUserProvider);
+      user = userData!;
+
+      _isFollowing = user.follower.contains(currentUser.userId);
+      follower = user.follower.length;
+      following = user.following.length;
+      postNumber = ref.read(postProvider).length;
+
+      isSameUser = user.userId == currentUser.userId;
+    }
+
+    return _isLoading
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              backgroundColor: backgroundColor,
+              title: Text(
+                user.username,
               ),
-              Expanded(
-                child: Column(
+            ),
+            body: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Implementing when I create service and controller for it
-                        ProfileInformation(
-                          number: '0',
-                          title: 'Posts',
-                        ),
-                        ProfileInformation(
-                          number: follower.toString(),
-                          title: 'Followers',
-                        ),
-                        ProfileInformation(
-                          number: following.toString(),
-                          title: 'Following',
-                        ),
-                      ],
+                    StoryCircle(
+                      isMine: false,
+                      user: user,
+                      isActive: true,
+                      onPress: () {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => StoryPage(
+                        //       user: widget.user,
+                        //     ),
+                        //   ),
+                        // );
+                      },
                     ),
-                    const SizedBox(height: 15),
-                    isSameUser
-                        ? Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 60),
-                            child: SharedButton(
-                              label: 'Edit Profile',
-                              onPress: () {},
-                              isLoading: false,
-                              color: secondaryColor,
-                            ),
-                          )
-                        : Container(
-                            child: SharedButton(
-                              // Problem with updating data and maybe it does not unfollow coz it did not get new current updated user 'I think'
-                              label: _isFollowing ? 'Unollow' : 'Follow',
-                              onPress: () {
-                                followUser();
-                              },
-                              isLoading: false,
-                              color: _isFollowing ? secondaryColor : blueColor,
-                            ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              // Implementing when I create service and controller for it
+                              ProfileInformation(
+                                number: postNumber.toString(),
+                                title: 'Posts',
+                              ),
+                              ProfileInformation(
+                                number: follower.toString(),
+                                title: 'Followers',
+                              ),
+                              ProfileInformation(
+                                number: following.toString(),
+                                title: 'Following',
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 15),
+                          isSameUser
+                              ? Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 60),
+                                  child: SharedButton(
+                                    label: 'Edit Profile',
+                                    onPress: () {},
+                                    isLoading: false,
+                                    color: secondaryColor,
+                                  ),
+                                )
+                              : Container(
+                                  child: SharedButton(
+                                    // Problem with updating data and maybe it does not unfollow coz it did not get new current updated user 'I think'
+                                    label: _isFollowing ? 'Unollow' : 'Follow',
+                                    onPress: () {
+                                      followUser();
+                                    },
+                                    isLoading: false,
+                                    color: _isFollowing
+                                        ? secondaryColor
+                                        : blueColor,
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: FutureBuilder(
-              future: ref
-                  .read(postProvider.notifier)
-                  .getUserPost(widget.user.userId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+                Expanded(
+                  child: FutureBuilder(
+                    future: ref
+                        .read(postProvider.notifier)
+                        .getUserPost(user.userId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                final List<PostModel> data = ref.watch(postProvider);
+                      final List<PostModel> data = ref.watch(postProvider);
 
-                return GridView.builder(
-                  padding: const EdgeInsets.only(top: 5),
-                  itemCount: data.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 5,
-                    crossAxisSpacing: 5,
-                    childAspectRatio: 1,
+                      return GridView.builder(
+                        padding: const EdgeInsets.only(top: 5),
+                        itemCount: data.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 5,
+                          crossAxisSpacing: 5,
+                          childAspectRatio: 1,
+                        ),
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PostPage(user: widget.user),
+                                ),
+                              );
+                            },
+                            child: Image.network(
+                              data[index].imageURL,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  itemBuilder: (context, index) {
-                    return Image.network(
-                      data[index].imageURL,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                );
-              },
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
   }
 }

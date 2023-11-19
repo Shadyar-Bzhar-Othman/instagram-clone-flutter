@@ -1,15 +1,13 @@
 import 'dart:typed_data';
 import 'package:instagramclone/core/models/user_model.dart';
-import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/core/services/user_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserController {
-  UserController({required WidgetRef ref, required UserService userService})
-      : _ref = ref,
-        _userService = userService;
+class CurrentUserController extends StateNotifier<UserModel?> {
+  CurrentUserController({required UserService userService})
+      : _userService = userService,
+        super(null);
 
-  final WidgetRef _ref;
   final UserService _userService;
 
   Future<String?> getCurrentUserDetail() async {
@@ -18,57 +16,7 @@ class UserController {
     try {
       UserModel user = await _userService.getCurrentUserDetail();
 
-      _ref.read(currentUserProvider.notifier).state = user;
-
-      result = null;
-    } catch (ex) {
-      result = ex.toString();
-    }
-
-    return result;
-  }
-
-  Future<String?> getUserDetailById(String userId) async {
-    String? result;
-
-    try {
-      UserModel user = await _userService.getUserDetailById(userId);
-
-      _ref.read(userProvider.notifier).state = user;
-
-      result = null;
-    } catch (ex) {
-      result = ex.toString();
-    }
-
-    return result;
-  }
-
-  Future<String?> searchUserByUsername(String username) async {
-    String? result;
-
-    try {
-      List<UserModel> users = await _userService.searchUserByUsername(username);
-
-      _ref.read(usersProvider.notifier).state = users;
-
-      result = null;
-    } catch (ex) {
-      result = ex.toString();
-    }
-
-    return result;
-  }
-
-  Future<String?> followUser(
-      String userId, String userFollowId, List following) async {
-    String? result;
-
-    try {
-      UserModel user =
-          await _userService.followUser(userId, userFollowId, following);
-
-      _ref.read(userProvider.notifier).state = user;
+      state = user;
 
       result = null;
     } catch (ex) {
@@ -90,7 +38,32 @@ class UserController {
       UserModel user =
           await _userService.updateUser(userId, username, profileImage, bio);
 
-      _ref.read(currentUserProvider.notifier).state = user;
+      state = user;
+
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
+
+    return result;
+  }
+}
+
+// SpecificUserController
+class SpecificUserController extends StateNotifier<UserModel?> {
+  SpecificUserController({required UserService userService})
+      : _userService = userService,
+        super(null);
+
+  final UserService _userService;
+
+  Future<String?> getUserDetailById(String userId) async {
+    String? result;
+
+    try {
+      UserModel user = await _userService.getUserDetailById(userId);
+
+      state = user;
 
       result = null;
     } catch (ex) {
@@ -100,13 +73,40 @@ class UserController {
     return result;
   }
 
-  Future<String?> savePost(String userId, String postId, List savedPost) async {
+  Future<String?> followUser(
+      String userFollowId, String userId, List follower) async {
     String? result;
 
     try {
-      UserModel user = await _userService.savePost(userId, postId, savedPost);
+      UserModel user =
+          await _userService.followUser(userFollowId, userId, follower);
 
-      _ref.read(userProvider.notifier).state = user;
+      state = user;
+
+      result = null;
+    } catch (ex) {
+      result = ex.toString();
+    }
+
+    return result;
+  }
+}
+
+// ListUsersController
+class ListUsersController extends StateNotifier<List<UserModel>> {
+  ListUsersController({required UserService userService})
+      : _userService = userService,
+        super([]);
+
+  final UserService _userService;
+
+  Future<String?> searchUserByUsername(String username) async {
+    String? result;
+
+    try {
+      List<UserModel> users = await _userService.searchUserByUsername(username);
+
+      state = users;
 
       result = null;
     } catch (ex) {

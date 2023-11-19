@@ -6,7 +6,6 @@ import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/firebase_options.dart';
 import 'package:instagramclone/ui/pages/home_page.dart';
 import 'package:instagramclone/ui/pages/login_page.dart';
-import 'package:instagramclone/ui/pages/signup_page.dart';
 import 'package:instagramclone/ui/shared/pages/loading_page.dart';
 import 'package:instagramclone/utils/colors.dart';
 
@@ -29,7 +28,7 @@ class InstagramClone extends ConsumerWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: backgroundColor,
       ),
-      home: StreamBuilder(
+      home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -42,8 +41,13 @@ class InstagramClone extends ConsumerWidget {
             );
           }
 
+          // FirebaseAuth.instance.signOut();
           if (snapshot.hasData) {
-            // FirebaseAuth.instance.signOut();
+            if (snapshot.data != null) {
+              print('1');
+              ref.read(currentUserProvider.notifier).getCurrentUserDetail();
+            }
+
             return const HomePage();
           }
 

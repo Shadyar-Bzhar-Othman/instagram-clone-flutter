@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/utils/helpers.dart';
@@ -38,7 +37,6 @@ class PostService {
       final querySnapshot = await _firebaseFirestore
           .collection('posts')
           .where('userId', isEqualTo: userId)
-          .orderBy('datePublished', descending: true)
           .get();
 
       posts = querySnapshot.docs
@@ -113,6 +111,30 @@ class PostService {
       } else {
         await _firebaseFirestore.collection('posts').doc(postId).update({
           'likes': FieldValue.arrayUnion([userId]),
+        });
+      }
+
+      posts = await getAllPost();
+    } catch (ex) {
+      posts = [];
+      rethrow;
+    }
+
+    return posts;
+  }
+
+  Future<List<PostModel>> savePost(
+      String userId, String postId, List savedPost) async {
+    List<PostModel>? posts;
+
+    try {
+      if (savedPost.contains(postId)) {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'savedPost': FieldValue.arrayRemove([postId]),
+        });
+      } else {
+        await _firebaseFirestore.collection('users').doc(userId).update({
+          'savedPost': FieldValue.arrayUnion([postId]),
         });
       }
 
