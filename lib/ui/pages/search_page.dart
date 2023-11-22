@@ -7,6 +7,7 @@ import 'package:instagramclone/ui/pages/post_page.dart';
 import 'package:instagramclone/ui/pages/user_profile_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/utils/colors.dart';
+import 'package:instagramclone/utils/helpers.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -47,20 +48,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.backgroundColor,
         title: TextField(
           controller: _usernameController,
           decoration: InputDecoration(
             hintText: 'Search for users...',
             contentPadding: const EdgeInsets.all(0),
             hintStyle: const TextStyle(
-              color: Colors.grey,
+              color: AppColors.secondaryColor,
             ),
             filled: true,
             fillColor: Colors.grey[900],
             prefixIcon: const Icon(
               Icons.search,
-              color: Colors.grey,
+              color: AppColors.secondaryColor,
             ),
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
@@ -107,8 +108,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               future: ref.read(postProvider.notifier).getAllPost(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return AppHelpers.buildLoadingIndicator();
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
                   );
                 }
 
@@ -129,7 +134,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const PostPage(),
+                            builder: (context) => const PostPage.feed(),
                           ),
                         );
                       },

@@ -1,38 +1,47 @@
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
-Future<String> uploadFileToFirebaseStorage(
-    String folderName, Uint8List? file, bool isPost) async {
-  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-
-  Reference ref = firebaseStorage
-      .ref()
-      .child(folderName)
-      .child(firebaseAuth.currentUser!.uid);
-
-  if (isPost) {
-    String postId = const Uuid().v1();
-    ref = ref.child(postId);
+class AppHelpers {
+  static Widget buildLoadingIndicator() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
   }
 
-  final uploadedFile = await ref.putData(file!);
+  static Future<String> uploadFileToFirebaseStorage(
+      String folderName, Uint8List? file, bool isPost) async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
-  String imageURL = await uploadedFile.ref.getDownloadURL();
+    Reference ref = firebaseStorage
+        .ref()
+        .child(folderName)
+        .child(firebaseAuth.currentUser!.uid);
 
-  return imageURL;
-}
+    if (isPost) {
+      String postId = const Uuid().v1();
+      ref = ref.child(postId);
+    }
 
-Future<Uint8List?> pickImage(ImageSource source) async {
-  ImagePicker imagePicker = ImagePicker();
+    final uploadedFile = await ref.putData(file!);
 
-  XFile? selectedImage = await imagePicker.pickImage(source: source);
+    String imageURL = await uploadedFile.ref.getDownloadURL();
 
-  if (selectedImage != null) {
-    return selectedImage.readAsBytes();
+    return imageURL;
   }
-  return null;
+
+  static Future<Uint8List?> pickImage(ImageSource source) async {
+    ImagePicker imagePicker = ImagePicker();
+
+    XFile? selectedImage = await imagePicker.pickImage(source: source);
+
+    if (selectedImage != null) {
+      return selectedImage.readAsBytes();
+    }
+    return null;
+  }
 }

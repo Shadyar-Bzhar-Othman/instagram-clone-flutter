@@ -7,6 +7,7 @@ import 'package:instagramclone/ui/pages/feed_page.dart';
 import 'package:instagramclone/ui/pages/search_page.dart';
 import 'package:instagramclone/ui/pages/user_profile_page.dart';
 import 'package:instagramclone/utils/colors.dart';
+import 'package:instagramclone/utils/helpers.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -48,62 +49,80 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
+  List<BottomNavigationBarItem> customBottomNavigationBarItems() {
+    return [
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.home_filled),
+        label: 'Home',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.search),
+        label: 'Search',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.add_circle),
+        label: 'Add Post',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.favorite),
+        label: 'Notification',
+      ),
+      BottomNavigationBarItem(
+        icon: CircleAvatar(
+          backgroundColor: AppColors.primaryColor,
+          backgroundImage: NetworkImage(
+            currentUser.profileImageURL,
+          ),
+          radius: 12,
+        ),
+        label: 'Profile',
+      ),
+    ];
+  }
+
+  Widget customBottomNavigationBar() {
+    return Theme(
+      data: Theme.of(context).copyWith(canvasColor: AppColors.backgroundColor),
+      child: BottomNavigationBar(
+        backgroundColor: AppColors.backgroundColor,
+        selectedItemColor: AppColors.primaryColor,
+        unselectedItemColor: AppColors.secondaryColor,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        currentIndex: _currentIndex,
+        onTap: changePage,
+        items: customBottomNavigationBarItems(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: ref.read(currentUserProvider.notifier).getCurrentUserDetail(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          final currentUserData = ref.read(currentUserProvider);
+      future: ref.read(currentUserProvider.notifier).getCurrentUserDetail(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return AppHelpers.buildLoadingIndicator();
+        }
 
-          currentUser = currentUserData!;
-          return Scaffold(
-            body: content,
-            bottomNavigationBar: Theme(
-              data: Theme.of(context).copyWith(canvasColor: backgroundColor),
-              child: BottomNavigationBar(
-                backgroundColor: backgroundColor,
-                selectedItemColor: primaryColor,
-                unselectedItemColor: secondaryColor,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                currentIndex: _currentIndex,
-                onTap: changePage,
-                items: [
-                  const BottomNavigationBarItem(
-                    icon: Icon(Icons.home_filled),
-                    label: 'Home',
-                  ),
-                  const BottomNavigationBarItem(
-                    icon: Icon(Icons.search),
-                    label: 'Search',
-                  ),
-                  const BottomNavigationBarItem(
-                    icon: Icon(Icons.add_circle),
-                    label: 'Add Post',
-                  ),
-                  const BottomNavigationBarItem(
-                    icon: Icon(Icons.favorite),
-                    label: 'Notification',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      backgroundImage: NetworkImage(
-                        currentUser.profileImageURL,
-                      ),
-                      radius: 12,
-                    ),
-                    label: 'Profile',
-                  ),
-                ],
-              ),
-            ),
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
           );
-        });
+        }
+
+        final currentUserData = ref.read(currentUserProvider);
+
+        currentUser = currentUserData!;
+        return Scaffold(
+          body: content,
+          bottomNavigationBar: Theme(
+            data: Theme.of(context)
+                .copyWith(canvasColor: AppColors.backgroundColor),
+            child: customBottomNavigationBar(),
+          ),
+        );
+      },
+    );
   }
 }

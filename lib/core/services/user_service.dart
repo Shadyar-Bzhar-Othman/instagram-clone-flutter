@@ -116,7 +116,7 @@ class UserService {
           'bio': bio,
         });
       } else {
-        String profileImageURL = await uploadFileToFirebaseStorage(
+        String profileImageURL = await AppHelpers.uploadFileToFirebaseStorage(
             'profilePictures', profileImage, false);
 
         await _firebaseFirestore.collection('users').doc(userId).update({

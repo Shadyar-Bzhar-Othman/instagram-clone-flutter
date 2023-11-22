@@ -32,11 +32,13 @@ class StoryCircle extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(
                       width: 2,
-                      color: isActive ? pinkColor : secondaryColor,
+                      color: isActive
+                          ? AppColors.pinkColor
+                          : AppColors.secondaryColor,
                     ),
                   ),
                   child: CircleAvatar(
-                    backgroundColor: secondaryColor,
+                    backgroundColor: AppColors.secondaryColor,
                     radius: 35,
                     backgroundImage: NetworkImage(user.profileImageURL),
                   ),
@@ -47,7 +49,7 @@ class StoryCircle extends StatelessWidget {
                         bottom: 0,
                         child: Container(
                           decoration: const BoxDecoration(
-                            color: blueColor,
+                            color: AppColors.blueColor,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(

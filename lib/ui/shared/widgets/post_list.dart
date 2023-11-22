@@ -4,6 +4,7 @@ import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/ui/shared/widgets/post_card.dart';
+import 'package:instagramclone/utils/helpers.dart';
 
 class PostList extends ConsumerStatefulWidget {
   const PostList({super.key, required this.user, required this.isSavedPost});
@@ -36,14 +37,15 @@ class _PostListState extends ConsumerState<PostList> {
       future: userPostsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
+          return AppHelpers.buildLoadingIndicator();
+        }
+
+        if (snapshot.hasError) {
           return Center(
             child: Text('Error: ${snapshot.error}'),
           );
         }
+
         List<PostModel> posts = [];
 
         if (widget.isSavedPost) {

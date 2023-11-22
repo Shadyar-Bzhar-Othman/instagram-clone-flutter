@@ -7,11 +7,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:instagramclone/core/controllers/auth_controller.dart';
 import 'package:instagramclone/core/providers/auth_provider.dart';
 import 'package:instagramclone/core/services/auth_service.dart';
-import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
+import 'package:instagramclone/ui/shared/dialogs/image_picker_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
+import 'package:instagramclone/utils/assets.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
+import 'package:instagramclone/utils/styles.dart';
 import 'package:instagramclone/utils/validators.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
@@ -82,8 +84,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             Expanded(child: Container()),
             Flexible(
               child: SvgPicture.asset(
-                'assets/images/ic_instagram.svg',
-                color: Colors.white,
+                AppAssets.instagramLogo,
                 height: 64,
               ),
             ),
@@ -95,14 +96,15 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                 _profileImage != null
                     ? CircleAvatar(
                         radius: 45,
-                        backgroundColor: secondaryColor,
+                        backgroundColor: AppColors.secondaryColor,
                         backgroundImage: MemoryImage(_profileImage!),
                       )
                     : const CircleAvatar(
                         radius: 45,
-                        backgroundColor: secondaryColor,
+                        backgroundColor: AppColors.secondaryColor,
                         backgroundImage: NetworkImage(
-                            'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
+                          AppConstants.userProfileImage,
+                        ),
                       ),
                 Positioned(
                   right: -10,
@@ -122,9 +124,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
               child: Column(
                 children: [
                   TextFormField(
-                    decoration: customFormTextFieldStyle(context, 'Username'),
+                    decoration:
+                        AppStyles.customFormTextFieldStyle(context, 'Username'),
                     validator: (value) {
-                      return validateUsername(value!);
+                      return AppValidators.validateUsername(value!);
                     },
                     onSaved: (newValue) {
                       _username = newValue!;
@@ -134,11 +137,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     height: 16,
                   ),
                   TextFormField(
-                    decoration:
-                        customFormTextFieldStyle(context, 'Email address'),
+                    decoration: AppStyles.customFormTextFieldStyle(
+                        context, 'Email address'),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      return validateEmail(value!);
+                      return AppValidators.validateEmail(value!);
                     },
                     onSaved: (newValue) {
                       _email = newValue!;
@@ -148,11 +151,12 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     height: 16,
                   ),
                   TextFormField(
-                    decoration: customFormTextFieldStyle(context, 'Password'),
-                    keyboardType: TextInputType.emailAddress,
+                    decoration:
+                        AppStyles.customFormTextFieldStyle(context, 'Password'),
+                    keyboardType: TextInputType.text,
                     obscureText: true,
                     validator: (value) {
-                      return validatePassword(value!);
+                      return AppValidators.validatePassword(value!);
                     },
                     onSaved: (newValue) {
                       _password = newValue!;
@@ -179,8 +183,12 @@ class _SignupPageState extends ConsumerState<SignupPage> {
               children: [
                 const Text('Already have an account?'),
                 TextButton(
-                  child:
-                      const Text('Login', style: TextStyle(color: blueColor)),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      color: AppColors.blueColor,
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.pop(context);
                   },

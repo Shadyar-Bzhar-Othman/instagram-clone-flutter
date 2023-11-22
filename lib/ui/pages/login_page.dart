@@ -9,8 +9,10 @@ import 'package:instagramclone/core/services/auth_service.dart';
 import 'package:instagramclone/ui/pages/signup_page.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
+import 'package:instagramclone/utils/assets.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
+import 'package:instagramclone/utils/styles.dart';
 import 'package:instagramclone/utils/validators.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -67,8 +69,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             Expanded(child: Container()),
             Flexible(
               child: SvgPicture.asset(
-                'assets/images/ic_instagram.svg',
-                color: Colors.white,
+                AppAssets.instagramLogo,
                 height: 64,
               ),
             ),
@@ -80,11 +81,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 children: [
                   TextFormField(
-                    decoration:
-                        customFormTextFieldStyle(context, 'Email address'),
+                    decoration: AppStyles.customFormTextFieldStyle(
+                        context, 'Email address'),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      return validateEmail(value!);
+                      return AppValidators.validateEmail(value!);
                     },
                     onSaved: (newValue) {
                       _email = newValue!;
@@ -94,11 +95,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     height: 16,
                   ),
                   TextFormField(
-                    decoration: customFormTextFieldStyle(context, 'Password'),
-                    keyboardType: TextInputType.emailAddress,
+                    decoration:
+                        AppStyles.customFormTextFieldStyle(context, 'Password'),
+                    keyboardType: TextInputType.text,
                     obscureText: true,
                     validator: (value) {
-                      return validatePassword(value!);
+                      return AppValidators.validatePassword(value!);
                     },
                     onSaved: (newValue) {
                       _password = newValue!;
@@ -115,7 +117,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               children: [
                 Text(
                   'Forgot password?',
-                  style: TextStyle(color: blueColor),
+                  style: TextStyle(color: AppColors.blueColor),
                   textAlign: TextAlign.end,
                 ),
               ],
@@ -138,8 +140,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               children: [
                 const Text('Don\'t have an account?'),
                 TextButton(
-                  child:
-                      const Text('Signup', style: TextStyle(color: blueColor)),
+                  child: const Text('Signup',
+                      style: TextStyle(color: AppColors.blueColor)),
                   onPressed: () {
                     Navigator.push(
                       context,

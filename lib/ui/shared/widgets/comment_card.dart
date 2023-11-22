@@ -23,11 +23,6 @@ class CommentCard extends ConsumerStatefulWidget {
 }
 
 class _CommentCardState extends ConsumerState<CommentCard> {
-  final CommentController _commentController = CommentController(
-    commentService:
-        CommentService(firebaseFirestore: FirebaseFirestore.instance),
-  );
-
   late UserModel user;
 
   @override
@@ -58,7 +53,7 @@ class _CommentCardState extends ConsumerState<CommentCard> {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.primaryColor,
             backgroundImage: NetworkImage(widget.comment.profileURL),
             radius: 15,
           ),
@@ -88,15 +83,16 @@ class _CommentCardState extends ConsumerState<CommentCard> {
                   children: [
                     Text(
                       '${widget.comment.likes.length} likes',
-                      style:
-                          const TextStyle(color: secondaryColor, fontSize: 13),
+                      style: const TextStyle(
+                          color: AppColors.secondaryColor, fontSize: 13),
                     ),
                     const SizedBox(
                       width: 10,
                     ),
                     const Text(
                       'Reply',
-                      style: TextStyle(color: secondaryColor, fontSize: 13),
+                      style: TextStyle(
+                          color: AppColors.secondaryColor, fontSize: 13),
                     ),
                   ],
                 ),

@@ -38,7 +38,7 @@ class StoryService {
       String storyId = const Uuid().v1();
 
       String imageURL =
-          await uploadFileToFirebaseStorage('stories', image, true);
+          await AppHelpers.uploadFileToFirebaseStorage('stories', image, true);
 
       StoryModel story = StoryModel(
         userId: userId,

@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/models/story_model.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/story_provider.dart';
+import 'package:instagramclone/ui/shared/dialogs/custom_dialog.dart';
+import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/story_bars.dart';
+import 'package:instagramclone/utils/colors.dart';
+import 'package:instagramclone/utils/helpers.dart';
 
 class StoryPage extends ConsumerStatefulWidget {
   const StoryPage({super.key, required this.user});
@@ -19,6 +25,7 @@ class _StoryPageState extends ConsumerState<StoryPage> {
   late Timer _storyTimer;
   int currentStory = 0;
   List<StoryModel> _stories = [];
+  // List<String> _imageURL = [];
   final List<double> _percents = [];
   bool _isLoading = true;
 
@@ -41,6 +48,12 @@ class _StoryPageState extends ConsumerState<StoryPage> {
       }
     });
 
+    // _stories.forEach((story) {
+    //   _imageURL.add(story.imageURL);
+    // });
+
+    // await preloadImages();
+
     setState(() {
       _isLoading = false;
     });
@@ -48,25 +61,33 @@ class _StoryPageState extends ConsumerState<StoryPage> {
     startWatching();
   }
 
+  // Future<void> preloadImages() async {
+  //   for (var imageUrl in _imageURL) {
+  //     await DefaultCacheManager().getSingleFile(imageUrl);
+  //   }
+  // }
+
   void startWatching() {
-    _storyTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      setState(() {
-        if (currentStory < _stories.length) {
-          if (_percents[currentStory] <= 1) {
-            _percents[currentStory] += 0.01;
+    _storyTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (_storyTimer.isActive) {
+        setState(() {
+          if (currentStory < _stories.length) {
+            if (_percents[currentStory] <= 1) {
+              _percents[currentStory] += 0.01;
+            } else {
+              _storyTimer.cancel();
+
+              _percents[currentStory] = 1;
+              currentStory += 1;
+
+              startWatching();
+            }
           } else {
             _storyTimer.cancel();
-
-            _percents[currentStory] = 1;
-            currentStory += 1;
-
-            startWatching();
+            Navigator.pop(context);
           }
-        } else {
-          _storyTimer.cancel();
-          Navigator.pop(context);
-        }
-      });
+        });
+      }
     });
   }
 
@@ -98,6 +119,16 @@ class _StoryPageState extends ConsumerState<StoryPage> {
     }
   }
 
+  void deleteStory() async {
+    final result = await ref
+        .read(storyProvider.notifier)
+        .deleteStory(_stories[currentStory].storyId);
+
+    if (result != null) {
+      showSnackbar(context, result);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -108,9 +139,7 @@ class _StoryPageState extends ConsumerState<StoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? AppHelpers.buildLoadingIndicator()
           : GestureDetector(
               onTapDown: onTap,
               child: Stack(
@@ -121,8 +150,14 @@ class _StoryPageState extends ConsumerState<StoryPage> {
                     child: Image.network(
                       _stories[currentStory].imageURL,
                       fit: BoxFit.cover,
-                      filterQuality: FilterQuality.high,
                     ),
+                    // child: CachedNetworkImage(
+                    //   imageUrl: _stories[currentStory].imageURL,
+                    //   placeholder: (context, url) =>
+                    //       const Center(child: CircularProgressIndicator()),
+                    //   errorWidget: (context, url, error) =>
+                    //       const Icon(Icons.error),
+                    // ),
                   ),
                   Positioned(
                     top: 20,
@@ -141,7 +176,7 @@ class _StoryPageState extends ConsumerState<StoryPage> {
                             Row(
                               children: [
                                 CircleAvatar(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: AppColors.primaryColor,
                                   backgroundImage:
                                       NetworkImage(widget.user.profileImageURL),
                                   radius: 18,
@@ -160,7 +195,21 @@ class _StoryPageState extends ConsumerState<StoryPage> {
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    customDialog(
+                                      context,
+                                      'Story Settings',
+                                      [
+                                        {
+                                          'icon': Icons.delete,
+                                          'label': 'Delete',
+                                          'function': () {
+                                            deleteStory();
+                                          },
+                                        },
+                                      ],
+                                    );
+                                  },
                                   child: const Icon(
                                     Icons.more_horiz,
                                   ),

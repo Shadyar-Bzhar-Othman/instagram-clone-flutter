@@ -7,13 +7,13 @@ class SharedButton extends StatelessWidget {
     required this.label,
     required this.onPress,
     required this.isLoading,
-    this.color = blueColor,
+    this.color = AppColors.blueColor,
   });
 
   final String label;
   final void Function() onPress;
   final bool isLoading;
-  Color color = blueColor;
+  Color color = AppColors.blueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class SharedButton extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
-                  color: primaryColor,
+                  color: AppColors.primaryColor,
                 ),
               ),
             )

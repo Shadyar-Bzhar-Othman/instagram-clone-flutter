@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
-import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
+import 'package:instagramclone/ui/shared/dialogs/image_picker_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/shared_button.dart';
 import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/consts.dart';
+import 'package:instagramclone/utils/styles.dart';
 import 'package:instagramclone/utils/validators.dart';
 
 class UpdateProfilePage extends ConsumerStatefulWidget {
@@ -78,7 +79,7 @@ class _UpdateProfilePageState extends ConsumerState<UpdateProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: backgroundColor,
+          backgroundColor: AppColors.backgroundColor,
           title: const Text('Update Profile')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -92,12 +93,12 @@ class _UpdateProfilePageState extends ConsumerState<UpdateProfilePage> {
                 _profileImage != null
                     ? CircleAvatar(
                         radius: 45,
-                        backgroundColor: secondaryColor,
+                        backgroundColor: AppColors.secondaryColor,
                         backgroundImage: MemoryImage(_profileImage!),
                       )
                     : CircleAvatar(
                         radius: 45,
-                        backgroundColor: secondaryColor,
+                        backgroundColor: AppColors.secondaryColor,
                         backgroundImage: NetworkImage(_ImageURL),
                       ),
                 Positioned(
@@ -119,9 +120,10 @@ class _UpdateProfilePageState extends ConsumerState<UpdateProfilePage> {
                 children: [
                   TextFormField(
                     initialValue: _username,
-                    decoration: customFormTextFieldStyle(context, 'Username'),
+                    decoration:
+                        AppStyles.customFormTextFieldStyle(context, 'Username'),
                     validator: (value) {
-                      return validateUsername(value!);
+                      return AppValidators.validateUsername(value!);
                     },
                     onSaved: (newValue) {
                       _username = newValue!;
@@ -132,9 +134,10 @@ class _UpdateProfilePageState extends ConsumerState<UpdateProfilePage> {
                   ),
                   TextFormField(
                     initialValue: _bio,
-                    decoration: customFormTextFieldStyle(context, 'Bio'),
+                    decoration:
+                        AppStyles.customFormTextFieldStyle(context, 'Bio'),
                     validator: (value) {
-                      return validateBio(value!);
+                      return AppValidators.validateBio(value!);
                     },
                     onSaved: (newValue) {
                       _bio = newValue!;

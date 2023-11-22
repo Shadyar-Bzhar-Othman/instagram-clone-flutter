@@ -9,8 +9,8 @@ class StoryPercentIndecator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LinearProgressIndicator(
-      color: primaryColor,
-      backgroundColor: secondaryColor,
+      color: AppColors.primaryColor,
+      backgroundColor: AppColors.secondaryColor,
       minHeight: 5,
       borderRadius: BorderRadius.circular(3),
       value: percent,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
-import 'package:instagramclone/ui/shared/dialogs/dialogs.dart';
+import 'package:instagramclone/ui/shared/dialogs/image_picker_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/utils/colors.dart';
 
@@ -27,9 +27,9 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
     setState(() {
       _selectedImage = selectedImage;
     });
-    }
+  }
 
-  void post() async {
+  void postAndNavigateToFeed() async {
     setState(() {
       _isLoading = true;
     });
@@ -69,15 +69,15 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
     return _selectedImage != null
         ? Scaffold(
             appBar: AppBar(
-              backgroundColor: backgroundColor,
+              backgroundColor: AppColors.backgroundColor,
               title: const Text('Add Post'),
               actions: [
                 TextButton(
-                  onPressed: post,
-                  child: const Text(
+                  onPressed: _isLoading ? null : postAndNavigateToFeed,
+                  child: Text(
                     'Post',
                     style: TextStyle(
-                      color: blueColor,
+                      color: _isLoading ? Colors.grey : AppColors.blueColor,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -112,7 +112,7 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
                         textAlign: TextAlign.start,
                         decoration: const InputDecoration(
                           hintText: 'Write a caption...',
-                          hintStyle: TextStyle(color: secondaryColor),
+                          hintStyle: TextStyle(color: AppColors.secondaryColor),
                           border: InputBorder.none,
                         ),
                         maxLines: 8,

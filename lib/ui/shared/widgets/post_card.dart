@@ -27,7 +27,6 @@ class _PostCardState extends ConsumerState<PostCard> {
   @override
   void initState() {
     super.initState();
-
     final currentUserData = ref.read(currentUserProvider);
     user = currentUserData!;
   }
@@ -61,13 +60,101 @@ class _PostCardState extends ConsumerState<PostCard> {
     }
   }
 
+  void _showPostSettingsDialog() {
+    customDialog(
+      context,
+      'Post Settings',
+      [
+        {
+          'icon': Icons.delete,
+          'label': 'Delete',
+          'function': () {
+            deletePost();
+          },
+        },
+      ],
+    );
+  }
+
+  void _onDoubleTap() {
+    setState(() {
+      likePost();
+      isLikeAnimating = true;
+    });
+  }
+
+  Widget _buildPostImage() {
+    return GestureDetector(
+      onDoubleTap: _onDoubleTap,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Image.network(
+          widget.post.imageURL,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostActionsRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            LikeAnimation(
+              isAnimating: widget.post.likes.contains(user.userId),
+              smallLike: true,
+              child: IconButton(
+                onPressed: likePost,
+                icon: Icon(
+                  widget.post.likes.contains(user.userId)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  size: 24,
+                  color: widget.post.likes.contains(user.userId)
+                      ? Colors.red
+                      : null,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CommentPage(post: widget.post),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.comment),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.send),
+            ),
+          ],
+        ),
+        IconButton(
+          onPressed: savePost,
+          icon: Icon(
+            user.savedPost.contains(widget.post.postId)
+                ? Icons.bookmark
+                : Icons.bookmark_border,
+            size: 24,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 10),
       decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(width: 0.3, color: searchColor),
+          top: BorderSide(width: 0.3, color: AppColors.searchColor),
         ),
       ),
       child: Column(
@@ -80,33 +167,17 @@ class _PostCardState extends ConsumerState<PostCard> {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.primaryColor,
                       backgroundImage: NetworkImage(widget.post.profileURL),
                       radius: 14,
                     ),
-                    const SizedBox(
-                      width: 5,
-                    ),
+                    const SizedBox(width: 5),
                     Text(widget.post.username),
                   ],
                 ),
                 widget.post.userId == user.userId
                     ? IconButton(
-                        onPressed: () {
-                          customDialog(
-                            context,
-                            'Post Settings',
-                            [
-                              {
-                                'icon': Icons.delete,
-                                'label': 'Delete',
-                                'function': () {
-                                  deletePost();
-                                },
-                              },
-                            ],
-                          );
-                        },
+                        onPressed: _showPostSettingsDialog,
                         icon: const Icon(Icons.more_horiz),
                       )
                     : Container(),
@@ -121,29 +192,13 @@ class _PostCardState extends ConsumerState<PostCard> {
           Stack(
             alignment: Alignment.center,
             children: [
-              GestureDetector(
-                onDoubleTap: () {
-                  setState(() {
-                    likePost();
-                    isLikeAnimating = true;
-                  });
-                },
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.network(
-                    widget.post.imageURL,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+              _buildPostImage(),
               AnimatedOpacity(
                 opacity: isLikeAnimating ? 1 : 0,
                 duration: const Duration(milliseconds: 200),
                 child: LikeAnimation(
                   isAnimating: isLikeAnimating,
-                  duration: const Duration(
-                    milliseconds: 400,
-                  ),
+                  duration: const Duration(milliseconds: 400),
                   onEnd: () {
                     setState(() {
                       isLikeAnimating = false;
@@ -158,66 +213,16 @@ class _PostCardState extends ConsumerState<PostCard> {
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  LikeAnimation(
-                    isAnimating: widget.post.likes.contains(user.userId),
-                    smallLike: true,
-                    child: IconButton(
-                      onPressed: () {
-                        likePost();
-                      },
-                      icon: widget.post.likes.contains(user.userId)
-                          ? const Icon(
-                              Icons.favorite,
-                              color: Colors.red,
-                            )
-                          : const Icon(Icons.favorite_border),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CommentPage(post: widget.post),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.comment),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.send),
-                  ),
-                ],
-              ),
-              IconButton(
-                onPressed: () {
-                  savePost();
-                },
-                icon: user.savedPost.contains(widget.post.postId)
-                    ? const Icon(Icons.bookmark)
-                    : const Icon(Icons.bookmark_border),
-              ),
-            ],
-          ),
+          _buildPostActionsRow(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.post.likes.isNotEmpty
-                    ? Text(
-                        '${widget.post.likes.length} likes',
-                      )
+                    ? Text('${widget.post.likes.length} likes')
                     : Container(),
-                const SizedBox(
-                  height: 6,
-                ),
+                const SizedBox(height: 6),
                 Row(
                   children: [
                     Text(widget.post.username),
@@ -228,9 +233,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 6,
-                ),
+                const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {},
                   child: const Text('View all 22 comments'),
@@ -241,16 +244,14 @@ class _PostCardState extends ConsumerState<PostCard> {
                     DateFormat.yMMMd()
                         .format(widget.post.datePublished.toDate()),
                     style: const TextStyle(
-                      color: secondaryColor,
+                      color: AppColors.secondaryColor,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
         ],
       ),
     );

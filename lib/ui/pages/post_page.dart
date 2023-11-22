@@ -5,7 +5,13 @@ import 'package:instagramclone/ui/shared/widgets/post_list.dart';
 import 'package:instagramclone/utils/colors.dart';
 
 class PostPage extends StatefulWidget {
-  const PostPage({super.key, this.user, this.isSavedPost});
+  const PostPage.feed({super.key})
+      : user = null,
+        isSavedPost = null;
+
+  const PostPage.forUser(UserModel user, {super.key, bool isSavedPost = false})
+      : user = user,
+        isSavedPost = isSavedPost;
 
   final UserModel? user;
   final bool? isSavedPost;
@@ -15,21 +21,25 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
+  Widget _buildPostList() {
+    if (widget.user == null) {
+      return const FeedPostList();
+    } else {
+      return PostList(
+        user: widget.user!,
+        isSavedPost: widget.isSavedPost ?? false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.backgroundColor,
         title: const Text('Posts'),
       ),
-      body: widget.user == null
-          ? const FeedPostList()
-          : widget.isSavedPost == null
-              ? PostList(user: widget.user!, isSavedPost: false)
-              : PostList(
-                  user: widget.user!,
-                  isSavedPost: widget.isSavedPost!,
-                ),
+      body: _buildPostList(),
     );
   }
 }

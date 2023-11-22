@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
 import 'package:instagramclone/ui/shared/widgets/post_card.dart';
+import 'package:instagramclone/utils/helpers.dart';
 
 class FeedPostList extends ConsumerStatefulWidget {
   const FeedPostList({
@@ -28,10 +29,10 @@ class _FeedPostListState extends ConsumerState<FeedPostList> {
       future: userPostsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
+          return AppHelpers.buildLoadingIndicator();
+        }
+
+        if (snapshot.hasError) {
           return Center(
             child: Text('Error: ${snapshot.error}'),
           );

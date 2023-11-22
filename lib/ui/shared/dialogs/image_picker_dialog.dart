@@ -45,7 +45,8 @@ Future<Uint8List> showImagePickerDialog(BuildContext context) async {
                 ),
                 title: const Text('Pick from gallery'),
                 onTap: () async {
-                  selectedImage = await pickImage(ImageSource.gallery);
+                  selectedImage =
+                      await AppHelpers.pickImage(ImageSource.gallery);
                   Navigator.pop(context);
                 },
               ),
@@ -55,7 +56,8 @@ Future<Uint8List> showImagePickerDialog(BuildContext context) async {
                 ),
                 title: const Text('Pick from camera'),
                 onTap: () async {
-                  selectedImage = await pickImage(ImageSource.camera);
+                  selectedImage =
+                      await AppHelpers.pickImage(ImageSource.camera);
                   Navigator.pop(context);
                 },
               ),

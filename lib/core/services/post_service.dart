@@ -84,7 +84,8 @@ class PostService {
     try {
       String postId = const Uuid().v1();
 
-      String imageURL = await uploadFileToFirebaseStorage('posts', image, true);
+      String imageURL =
+          await AppHelpers.uploadFileToFirebaseStorage('posts', image, true);
 
       PostModel post = PostModel(
         userId: userId,

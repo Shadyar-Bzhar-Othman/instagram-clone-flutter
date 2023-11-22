@@ -50,7 +50,7 @@ class AuthService {
       final authResult = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
 
-      String profileImageURL = await uploadFileToFirebaseStorage(
+      String profileImageURL = await AppHelpers.uploadFileToFirebaseStorage(
           'profilePictures', profileImage, false);
 
       String userId = authResult.user!.uid;

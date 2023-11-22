@@ -1,19 +1,4 @@
-import 'package:flutter/material.dart';
-
-InputDecoration customFormTextFieldStyle(
-    BuildContext context, String hintText) {
-  final inputBorder = OutlineInputBorder(
-    borderSide: Divider.createBorderSide(context),
-  );
-
-  return InputDecoration(
-    contentPadding: const EdgeInsets.all(16),
-    filled: true,
-    fillColor: const Color(0xff121212),
-    hintText: hintText,
-    border: inputBorder,
-    enabledBorder: inputBorder,
-    disabledBorder: inputBorder,
-    focusedBorder: inputBorder,
-  );
+class AppConstants {
+  static const String userProfileImage =
+      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
 }

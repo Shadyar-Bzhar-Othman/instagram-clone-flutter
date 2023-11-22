@@ -11,6 +11,7 @@ import 'package:instagramclone/core/services/comment_service.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/comment_card.dart';
 import 'package:instagramclone/utils/colors.dart';
+import 'package:instagramclone/utils/helpers.dart';
 
 class CommentPage extends ConsumerStatefulWidget {
   const CommentPage({super.key, required this.post});
@@ -22,11 +23,6 @@ class CommentPage extends ConsumerStatefulWidget {
 }
 
 class _CommentPageState extends ConsumerState<CommentPage> {
-  final CommentController _commentController = CommentController(
-    commentService:
-        CommentService(firebaseFirestore: FirebaseFirestore.instance),
-  );
-
   late UserModel user;
   final TextEditingController _commentTextController = TextEditingController();
 
@@ -38,7 +34,53 @@ class _CommentPageState extends ConsumerState<CommentPage> {
     user = currentUserData!;
   }
 
-  void addComment() async {
+  Future<void> _loadComments() async {
+    await ref.read(commentProvider.notifier).getPostComment(widget.post.postId);
+  }
+
+  Widget _buildCommentsList(List<CommentModel> comments) {
+    return Expanded(
+      child: comments.isEmpty
+          ? const Text('No comments added yet')
+          : ListView.builder(
+              itemCount: comments.length,
+              itemBuilder: (context, index) {
+                final comment = comments[index];
+                return _buildCommentItem(comment);
+              },
+            ),
+    );
+  }
+
+  Widget _buildCommentItem(CommentModel comment) {
+    return user.userId == comment.userId
+        ? CommentCard(post: widget.post, comment: comment)
+        : Dismissible(
+            onDismissed: (direction) {
+              _deleteComment(comment);
+            },
+            background: Container(
+              color: Colors.red,
+              child: const Icon(
+                Icons.delete,
+              ),
+            ),
+            key: ValueKey<CommentModel>(comment),
+            child: CommentCard(post: widget.post, comment: comment),
+          );
+  }
+
+  void _deleteComment(CommentModel comment) async {
+    final result = await ref
+        .read(commentProvider.notifier)
+        .deleteComment(widget.post.postId, comment.commentId);
+
+    if (result != null) {
+      showSnackbar(context, result);
+    }
+  }
+
+  void _addComment() async {
     final String text = _commentTextController.text;
 
     final result = await ref.read(commentProvider.notifier).addComment(
@@ -56,16 +98,6 @@ class _CommentPageState extends ConsumerState<CommentPage> {
     _commentTextController.clear();
   }
 
-  void deleteComment(CommentModel comment) async {
-    final result = await ref
-        .read(commentProvider.notifier)
-        .deleteComment(widget.post.postId, comment.commentId);
-
-    if (result != null) {
-      showSnackbar(context, result);
-    }
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -76,60 +108,28 @@ class _CommentPageState extends ConsumerState<CommentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.backgroundColor,
         title: const Text('Comments'),
       ),
       body: Column(
         children: [
-          Expanded(
-            child: FutureBuilder(
-              future: ref
-                  .read(commentProvider.notifier)
-                  .getPostComment(widget.post.postId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+          FutureBuilder(
+            future: _loadComments(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return AppHelpers.buildLoadingIndicator();
+              }
 
-                final List<CommentModel> comments = ref.watch(commentProvider);
-
-                if (comments.isEmpty) {
-                  return const Center(
-                    child: Text('There\'s no comment for this post...'),
-                  );
-                }
-
-                return ListView.builder(
-                  itemCount: comments.length,
-                  itemBuilder: (context, index) {
-                    final comment = comments[index];
-                    return user.userId == comment.userId
-                        ? Dismissible(
-                            onDismissed: (direction) {
-                              deleteComment(comment);
-                            },
-                            background: Container(
-                              color: Colors.red,
-                              child: const Icon(
-                                Icons.delete,
-                              ),
-                            ),
-                            key: ValueKey<CommentModel>(comment),
-                            child: CommentCard(
-                              post: widget.post,
-                              comment: comment,
-                            ),
-                          )
-                        : CommentCard(
-                            post: widget.post,
-                            comment: comment,
-                          );
-                  },
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
                 );
-              },
-            ),
+              }
+
+              final List<CommentModel> comments = ref.watch(commentProvider);
+
+              return _buildCommentsList(comments);
+            },
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -137,7 +137,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+                  backgroundColor: AppColors.primaryColor,
                   backgroundImage: NetworkImage(user.profileImageURL),
                 ),
                 const SizedBox(
@@ -150,11 +150,11 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                       border: InputBorder.none,
                       hintText: 'Add a comment for ${widget.post.username}',
                       suffix: TextButton(
-                        onPressed: addComment,
+                        onPressed: _addComment,
                         child: const Text(
                           'Post',
                           style: TextStyle(
-                            color: blueColor,
+                            color: AppColors.blueColor,
                           ),
                         ),
                       ),
@@ -163,7 +163,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
