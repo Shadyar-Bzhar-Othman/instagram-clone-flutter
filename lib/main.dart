@@ -2,11 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instagramclone/core/dependency_injection.dart';
 import 'package:instagramclone/firebase_options.dart';
 import 'package:instagramclone/ui/pages/home_page.dart';
 import 'package:instagramclone/ui/pages/login_page.dart';
 import 'package:instagramclone/ui/shared/pages/loading_page.dart';
-import 'package:instagramclone/utils/colors.dart';
 import 'package:instagramclone/utils/theme.dart';
 
 void main() async {
@@ -14,6 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  setupLocator();
   runApp(const ProviderScope(child: InstagramClone()));
 }
 

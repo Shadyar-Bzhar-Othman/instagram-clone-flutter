@@ -122,7 +122,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     },
                     {
                       'icon': Icons.bookmark,
-                      'label': 'Saved Post',
+                      'label': 'Saved Posts',
                       'function': () {
                         Future.delayed(
                           const Duration(microseconds: 250),

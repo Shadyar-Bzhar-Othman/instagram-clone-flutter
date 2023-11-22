@@ -33,7 +33,7 @@ class _SavedPostPageState extends ConsumerState<SavedPostPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.backgroundColor,
-        title: const Text('Saved Post'),
+        title: const Text('Saved Posts'),
       ),
       body: FutureBuilder(
         future: userSavedPost,

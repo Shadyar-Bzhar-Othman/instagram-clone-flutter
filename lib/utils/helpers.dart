@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:instagramclone/core/dependency_injection.dart';
 import 'package:uuid/uuid.dart';
 
 class AppHelpers {
@@ -14,13 +15,10 @@ class AppHelpers {
 
   static Future<String> uploadFileToFirebaseStorage(
       String folderName, Uint8List? file, bool isPost) async {
-    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-
-    Reference ref = firebaseStorage
+    Reference ref = locator<FirebaseStorage>()
         .ref()
         .child(folderName)
-        .child(firebaseAuth.currentUser!.uid);
+        .child(locator<FirebaseAuth>().currentUser!.uid);
 
     if (isPost) {
       String postId = const Uuid().v1();

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/story_provider.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
@@ -107,12 +108,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         backgroundColor: AppColors.backgroundColor,
         title: SvgPicture.asset(
           AppAssets.instagramLogo,
+          color: AppColors.primaryColor,
           height: 28,
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.chat_rounded)),
+          IconButton(
+            onPressed: () {},
+            icon: const FaIcon(
+              FontAwesomeIcons.facebookMessenger,
+              size: 22,
+            ),
+          ),
           const SizedBox(
-            width: 12,
+            width: 1,
           )
         ],
       ),

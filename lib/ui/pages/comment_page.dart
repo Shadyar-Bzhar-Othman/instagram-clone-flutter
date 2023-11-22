@@ -41,7 +41,7 @@ class _CommentPageState extends ConsumerState<CommentPage> {
   Widget _buildCommentsList(List<CommentModel> comments) {
     return Expanded(
       child: comments.isEmpty
-          ? const Text('No comments added yet')
+          ? const Center(child: Text('No comments added yet'))
           : ListView.builder(
               itemCount: comments.length,
               itemBuilder: (context, index) {

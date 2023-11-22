@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/ui/pages/add_post_page.dart';
@@ -60,7 +61,10 @@ class _HomePageState extends ConsumerState<HomePage> {
         label: 'Search',
       ),
       const BottomNavigationBarItem(
-        icon: Icon(Icons.add_circle),
+        icon: FaIcon(
+          FontAwesomeIcons.squarePlus,
+          size: 22,
+        ),
         label: 'Add Post',
       ),
       const BottomNavigationBarItem(

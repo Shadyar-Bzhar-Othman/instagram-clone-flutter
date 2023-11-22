@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagramclone/core/models/post_models.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/post_provider.dart';
@@ -127,11 +128,24 @@ class _PostCardState extends ConsumerState<PostCard> {
                   ),
                 );
               },
-              icon: const Icon(Icons.comment),
+              icon: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()..scale(-1.0, 1.0),
+                child: const FaIcon(
+                  FontAwesomeIcons.comment,
+                  size: 22,
+                ),
+              ),
             ),
             IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.send),
+              icon: Transform.rotate(
+                angle: 15 * 3.1415926535 / 180,
+                child: const FaIcon(
+                  FontAwesomeIcons.paperPlane,
+                  size: 20,
+                ),
+              ),
             ),
           ],
         ),

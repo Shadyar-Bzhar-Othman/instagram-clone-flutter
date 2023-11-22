@@ -37,7 +37,9 @@ class _PostPageState extends State<PostPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.backgroundColor,
-        title: const Text('Posts'),
+        title: Text(widget.user != null && widget.isSavedPost == true
+            ? 'Saved Posts'
+            : 'Posts'),
       ),
       body: _buildPostList(),
     );
