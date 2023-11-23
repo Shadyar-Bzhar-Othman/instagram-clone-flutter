@@ -85,6 +85,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             Flexible(
               child: SvgPicture.asset(
                 AppAssets.instagramLogo,
+                color: Colors.white,
                 height: 64,
               ),
             ),

@@ -70,6 +70,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             Flexible(
               child: SvgPicture.asset(
                 AppAssets.instagramLogo,
+                color: Colors.white,
                 height: 64,
               ),
             ),

@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instagramclone/core/models/story_model.dart';
 import 'package:instagramclone/core/models/user_model.dart';
 import 'package:instagramclone/core/providers/story_provider.dart';
+import 'package:instagramclone/core/providers/user_provider.dart';
 import 'package:instagramclone/ui/shared/dialogs/custom_dialog.dart';
 import 'package:instagramclone/ui/shared/dialogs/snackbars.dart';
 import 'package:instagramclone/ui/shared/widgets/story_bars.dart';
@@ -29,6 +28,8 @@ class _StoryPageState extends ConsumerState<StoryPage> {
   final List<double> _percents = [];
   bool _isLoading = true;
 
+  late UserModel currentUser;
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +38,11 @@ class _StoryPageState extends ConsumerState<StoryPage> {
   }
 
   void getStories() async {
+    await ref.read(currentUserProvider.notifier).getCurrentUserDetail();
+
+    final user = ref.read(currentUserProvider);
+    currentUser = user!;
+
     await ref
         .read(storyProvider.notifier)
         .getStories(widget.user.userId)
@@ -48,24 +54,12 @@ class _StoryPageState extends ConsumerState<StoryPage> {
       }
     });
 
-    // _stories.forEach((story) {
-    //   _imageURL.add(story.imageURL);
-    // });
-
-    // await preloadImages();
-
     setState(() {
       _isLoading = false;
     });
 
     startWatching();
   }
-
-  // Future<void> preloadImages() async {
-  //   for (var imageUrl in _imageURL) {
-  //     await DefaultCacheManager().getSingleFile(imageUrl);
-  //   }
-  // }
 
   void startWatching() {
     _storyTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
@@ -151,16 +145,9 @@ class _StoryPageState extends ConsumerState<StoryPage> {
                       _stories[currentStory].imageURL,
                       fit: BoxFit.cover,
                     ),
-                    // child: CachedNetworkImage(
-                    //   imageUrl: _stories[currentStory].imageURL,
-                    //   placeholder: (context, url) =>
-                    //       const Center(child: CircularProgressIndicator()),
-                    //   errorWidget: (context, url, error) =>
-                    //       const Icon(Icons.error),
-                    // ),
                   ),
                   Positioned(
-                    top: 20,
+                    top: 40,
                     right: 5,
                     left: 5,
                     child: Column(
@@ -194,30 +181,31 @@ class _StoryPageState extends ConsumerState<StoryPage> {
                             ),
                             Row(
                               children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    customDialog(
-                                      context,
-                                      'Story Settings',
-                                      [
-                                        {
-                                          'icon': Icons.delete,
-                                          'label': 'Delete',
-                                          'function': () {
-                                            deleteStory();
-                                          },
+                                widget.user.userId == currentUser.userId
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          customDialog(
+                                            context,
+                                            'Story Settings',
+                                            [
+                                              {
+                                                'icon': Icons.delete,
+                                                'label': 'Delete',
+                                                'function': () {
+                                                  deleteStory();
+                                                },
+                                              },
+                                            ],
+                                          );
                                         },
-                                      ],
-                                    );
-                                  },
-                                  child: const Icon(
-                                    Icons.more_horiz,
-                                  ),
-                                ),
+                                        child: const Icon(
+                                          Icons.more_horiz,
+                                        ),
+                                      )
+                                    : Container(),
                                 const SizedBox(
                                   width: 5,
                                 ),
-                                // Separating all pop and navigating in a different file so I just use them || Refactor all the code
                                 GestureDetector(
                                   onTap: () {
                                     Navigator.pop(context);
