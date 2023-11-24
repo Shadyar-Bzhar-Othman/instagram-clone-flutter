@@ -8,17 +8,24 @@ InstagramClone is a mobile application that replicates some features of Instagra
 
 ## Table of Contents
 
+- [Screenshots](#screenshots)
 - [Installation](#installation)
-- [Features](#Features)
-- [Up-Coming Features](#Up-ComingFeatures)
-- [Folder Structure](#contributing)
-- [Libraries & Tools Used](#Libraries & Tools Used)
+- [Features](#features)
+- [Up-Coming Features](#up-coming-features)
+- [Folder Structure](#folder-structure)
+- [Libraries Used](#libraries-used)
+- [Conclusion](#conclusion)
 
 ## Screenshots
 
-|      Solarized dark      |     Solarized Ocean      |
+| ![](assets/images/8.PNG) | ![](assets/images/1.PNG) |
 | :----------------------: | :----------------------: |
-| ![](assets/images/1.PNG) | ![](assets/images/2.PNG) |
+| ![](assets/images/2.PNG) | ![](assets/images/3.PNG) |
+| ![](assets/images/4.PNG) | ![](assets/images/5.PNG) |
+| :----------------------: | :----------------------: |
+| ![](assets/images/6.PNG) | ![](assets/images/7.PNG) |
+
+* [Watch the video](https://drive.google.com/file/d/1nlejdWd7NQZDFqoDeqKziFZ9up2Ks-Lz/view?usp=drive_link)
 
 ## Installation
 
@@ -58,7 +65,7 @@ Run the app:
 flutter run
 ```
 
-## Features:
+## Features
 
 ### Authentication:
 
@@ -95,7 +102,7 @@ flutter run
 
 - Use of the GetIt package for efficient dependency injection
 
-## Up-Coming Features:
+## Up Coming Features
 
 - User Notifications
 - Logging
@@ -254,7 +261,7 @@ class InstagramClone extends ConsumerWidget {
 
 ```
 
-## Libraries & Tools Used:
+## Libraries Used
 
 - [Firebase Core](https://pub.dev/packages/firebase_core)
 - [Firebase Auth](https://pub.dev/packages/firebase_auth)
@@ -273,4 +280,4 @@ class InstagramClone extends ConsumerWidget {
 
 I will be happy to answer any questions that you may have on this project, and if you want to lend a hand with the instagram clone project then please feel free to submit an issue and/or pull request 🙂
 
-If you liked my work, don’t forget to ⭐ star the repo to show your support
+If you liked my work, don’t forget to ⭐ star the repo to show your support.
