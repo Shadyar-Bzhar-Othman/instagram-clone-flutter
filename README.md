@@ -21,6 +21,7 @@ InstagramClone is a mobile application that replicates some features of Instagra
 | ![](assets/images/8.PNG) | ![](assets/images/1.PNG) |
 | :----------------------: | :----------------------: |
 | ![](assets/images/2.PNG) | ![](assets/images/3.PNG) |
+
 | ![](assets/images/4.PNG) | ![](assets/images/5.PNG) |
 | :----------------------: | :----------------------: |
 | ![](assets/images/6.PNG) | ![](assets/images/7.PNG) |
